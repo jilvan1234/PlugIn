@@ -1,0 +1,1 @@
+ WTSGetActiveConsoleSessionId:-582805072 WTSGetActiveConsoleSessionId:-592766544 WTSGetActiveConsoleSessionId:-583329360 WTSGetActiveConsoleSessionId:-357951056 WTSGetActiveConsoleSessionId:-357951056 WTSGetActiveConsoleSessionId:-357951056 WTSGetActiveConsoleSessionId:-357951056 WTSGetActiveConsoleSessionId:-357951056
