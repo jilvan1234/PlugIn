@@ -1,0 +1,9 @@
+﻿cl : 命令行 warning D9025: 正在重写“/sdl-”(用“/GS-”)
+  CTerminateProcess.cpp
+f:\公司文档\公司代码\plugin\dllinject\mmremotethread\mmremotethread\cterminateprocess.cpp(125): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.18362.0\ucrt\time.h(506): note: 参见“localtime”的声明
+f:\公司文档\公司代码\plugin\dllinject\mmremotethread\mmremotethread\cterminateprocess.cpp(126): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.18362.0\ucrt\time.h(506): note: 参见“localtime”的声明
+  run.cpp
+  正在生成代码...
+  MmRemoteThread.vcxproj -> F:\公司文档\公司代码\PlugIn\SystemServices\Debug\MmRemoteThread.exe

@@ -1,0 +1,8 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  Hook.cpp
+    正在创建库 Release\Hook.lib 和对象 Release\Hook.exp
+  正在生成代码
+  All 4 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  Hook.vcxproj -> F:\公司文档\公司代码\PlugIn\DllInject\SetWindowHook\Hook\Release\Hook.dll

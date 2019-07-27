@@ -1,0 +1,4 @@
+﻿  stdafx.cpp
+  EnumSysHandleTableTools.cpp
+  EnumSysHandleTableToolsDlg.cpp
+LINK : fatal error LNK1104: 无法打开文件“uafxcw.lib”

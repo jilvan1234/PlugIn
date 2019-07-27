@@ -1,0 +1,6 @@
+﻿  run.cpp
+f:\公司文档\公司代码\plugin\dllinject\mmremotethread\mmremotethread\run.cpp(18): warning C4101: “dwOldPro”: 未引用的局部变量
+  正在生成代码
+  All 1 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  MmRemoteThread.vcxproj -> F:\公司文档\公司代码\PlugIn\SystemServices\Release\MmRemoteThread.exe

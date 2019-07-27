@@ -1,0 +1,135 @@
+﻿  MyDuiLib.cpp
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(246): error C2504: “VARIANT”: 未定义基类
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(264): error C2061: 语法错误: 标识符“LPOLESTR”
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(264): error C2535: “DuiLib::CVariant::CVariant(void)”: 已经定义或声明成员函数
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(248) : 参见“DuiLib::CVariant::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(270): error C2061: 语法错误: 标识符“IDispatch”
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(270): error C2535: “DuiLib::CVariant::CVariant(void)”: 已经定义或声明成员函数
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(248) : 参见“DuiLib::CVariant::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(250): error C3861: “VariantInit”:  找不到标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(254): error C3861: “VariantInit”:  找不到标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(255): error C2039: “vt”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(255): error C2065: “VT_I4”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(256): error C2039: “intVal”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(260): error C3861: “VariantInit”:  找不到标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(261): error C2039: “vt”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(261): error C2065: “VT_R4”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(262): error C2039: “fltVal”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(266): error C3861: “VariantInit”:  找不到标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(267): error C2039: “vt”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(267): error C2065: “VT_BSTR”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(268): error C2039: “bstrVal”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(268): error C2065: “s”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(272): error C3861: “VariantInit”:  找不到标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(273): error C2039: “vt”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(273): error C2065: “VT_DISPATCH”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(274): error C2039: “pdispVal”: 不是“DuiLib::CVariant”的成员
+          f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(245) : 参见“DuiLib::CVariant”的声明
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(274): error C2065: “disp”: 未声明的标识符
+f:\公司文档\公司代码\plugin\myduilib\duilib\Utils/Utils.h(279): error C3861: “VariantClear”:  找不到标识符
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(74): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(74): error C2440: “初始化”: 无法从“const char [37]”转换为“int”
+          没有使该转换得以执行的上下文
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(74): error C2146: 语法错误: 缺少“;”(在标识符“IImageBytes”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(74): error C2143: 语法错误 : 缺少“;”(在“:”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(74): error C2059: 语法错误:“public”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(75): error C2143: 语法错误 : 缺少“;”(在“{”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(75): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(280): error C2146: 语法错误: 缺少“;”(在标识符“id”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusImaging.h(280): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusHeaders.h(443): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusHeaders.h(444): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusHeaders.h(445): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusHeaders.h(453): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusFlat.h(1244): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusFlat.h(1247): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusFlat.h(1250): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusFlat.h(1262): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusPath.h(133): error C2061: 语法错误: 标识符“byte”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(410): error C2061: 语法错误: 标识符“PROPID”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(414): error C2065: “list”: 未声明的标识符
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(414): error C2660: “Gdiplus::DllExports::GdipGetPropertyIdList”: 函数不接受 3 个参数
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(419): error C2065: “PROPID”: 未声明的标识符
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(420): error C2146: 语法错误: 缺少“)”(在标识符“propId”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(420): error C2761: “UINT Gdiplus::Image::GetPropertyItemSize(void)”: 不允许成员函数重新声明
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(420): error C2059: 语法错误:“)”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(421): error C2143: 语法错误 : 缺少“;”(在“{”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(421): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(433): error C2065: “PROPID”: 未声明的标识符
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(433): error C2146: 语法错误: 缺少“)”(在标识符“propId”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(433): error C2761: “Gdiplus::Status Gdiplus::Image::GetPropertyItem(void)”: 不允许成员函数重新声明
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(436): error C2059: 语法错误:“)”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(437): error C2143: 语法错误 : 缺少“;”(在“{”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(437): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(472): error C2065: “PROPID”: 未声明的标识符
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(473): error C2146: 语法错误: 缺少“)”(在标识符“propId”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(473): error C2761: “Gdiplus::Status Gdiplus::Image::RemovePropertyItem(void)”: 不允许成员函数重新声明
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(473): error C2059: 语法错误:“)”
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(474): error C2143: 语法错误 : 缺少“;”(在“{”的前面)
+c:\program files (x86)\microsoft sdks\windows\v7.1a\include\GdiplusBitmap.h(474): error C2447: “{”: 缺少函数标题(是否是老式的形式表?)
+f:\公司文档\公司代码\plugin\myduilib\duilib\Control/UIRichEdit.h(105): error C2143: 语法错误 : 缺少“;”(在“*”的前面)
+f:\公司文档\公司代码\plugin\myduilib\duilib\Control/UIRichEdit.h(105): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+f:\公司文档\公司代码\plugin\myduilib\duilib\Control/UIRichEdit.h(105): warning C4183: “GetTxDropTarget”:  缺少返回类型；假定为返回“int”的成员函数
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(49): error C2146: 语法错误: 缺少“;”(在标识符“IWebBrowser”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(49): error C4430: 缺少类型说明符 - 假定为 int。注意:  C++ 不支持默认 int
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(49): error C2086: “int IWebBrowser”: 重定义
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(49) : 参见“IWebBrowser”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(55): error C2146: 语法错误: 缺少“;”(在标识符“DWebBrowserEvents”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(55): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(61): error C2146: 语法错误: 缺少“;”(在标识符“IWebBrowserApp”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(61): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(67): error C2146: 语法错误: 缺少“;”(在标识符“IWebBrowser2”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(67): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(73): error C2146: 语法错误: 缺少“;”(在标识符“DWebBrowserEvents2”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(73): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(139): error C2146: 语法错误: 缺少“;”(在标识符“DShellWindowsEvents”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(139): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(145): error C2146: 语法错误: 缺少“;”(在标识符“IShellWindows”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(145): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(163): error C2146: 语法错误: 缺少“;”(在标识符“IShellUIHelper”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(163): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(169): error C2146: 语法错误: 缺少“;”(在标识符“IShellUIHelper2”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(169): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(175): error C2146: 语法错误: 缺少“;”(在标识符“IShellUIHelper3”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(175): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(193): error C2146: 语法错误: 缺少“;”(在标识符“DShellNameSpaceEvents”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(193): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(199): error C2146: 语法错误: 缺少“;”(在标识符“IShellFavoritesNameSpace”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(199): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(205): error C2146: 语法错误: 缺少“;”(在标识符“IShellNameSpace”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(205): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(223): error C2146: 语法错误: 缺少“;”(在标识符“IScriptErrorList”的前面)
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(223): warning C4091: “”: 没有声明变量时忽略“interface”的左侧
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(714): error C2371: “DWebBrowserEvents”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(55) : 参见“DWebBrowserEvents”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(821): error C2371: “IWebBrowserApp”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(61) : 参见“IWebBrowserApp”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(1310): error C2371: “IWebBrowser2”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(67) : 参见“IWebBrowser2”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(1948): error C2371: “DWebBrowserEvents2”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(73) : 参见“DWebBrowserEvents2”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(2095): error C2371: “DShellWindowsEvents”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(139) : 参见“DShellWindowsEvents”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(2202): error C2371: “IShellWindows”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(145) : 参见“IShellWindows”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(2463): error C2371: “IShellUIHelper”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(163) : 参见“IShellUIHelper”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(2726): error C2371: “IShellUIHelper2”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(169) : 参见“IShellUIHelper2”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(3098): error C2371: “IShellUIHelper3”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(175) : 参见“IShellUIHelper3”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(3562): error C2371: “DShellNameSpaceEvents”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(193) : 参见“DShellNameSpaceEvents”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(3669): error C2371: “IShellFavoritesNameSpace”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(199) : 参见“IShellFavoritesNameSpace”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(3894): error C2371: “IShellNameSpace”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(205) : 参见“IShellNameSpace”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(4307): error C2371: “IScriptErrorList”: 重定义；不同的基类型
+          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\ExDisp.h(223) : 参见“IScriptErrorList”的声明

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnumSysHandleTableTools", "EnumSysHandleTableTools\EnumSysHandleTableTools.vcxproj", "{6103589B-A0F0-4615-ADBC-E85BCFD0B202}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6103589B-A0F0-4615-ADBC-E85BCFD0B202}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6103589B-A0F0-4615-ADBC-E85BCFD0B202}.Debug|Win32.Build.0 = Debug|Win32
+		{6103589B-A0F0-4615-ADBC-E85BCFD0B202}.Release|Win32.ActiveCfg = Release|Win32
+		{6103589B-A0F0-4615-ADBC-E85BCFD0B202}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24779180-98BA-48A6-B173-92A89D670F75}
+	EndGlobalSection
+EndGlobal

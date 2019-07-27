@@ -1,0 +1,6 @@
+﻿  run.cpp
+f:\公司文档\公司代码\plugin\dllinject\setwindowhook\globalinjectanhook\run.cpp(8): warning C4229: 使用了记时错误: 忽略数据上的修饰符
+  正在生成代码
+  All 1 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  GlobalInjectAnHook.vcxproj -> F:\公司文档\公司代码\PlugIn\DllInject\SetWindowHook\GlobalInjectAnHook\x64\Release\GlobalInjectAnHook.exe
