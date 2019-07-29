@@ -1,8 +1,0 @@
-﻿cl : 命令行 warning D9035: “Gm”选项已否决，并将在将来的版本中移除
-  stdafx.cpp
-cl : 命令行 warning D9035: “Gm”选项已否决，并将在将来的版本中移除
-  EnumSysHandleTableToolsDlg.cpp
-  EnumSysHandleTableTools.cpp
-  正在生成代码...
-EnumSysHandleTableTools.obj : warning LNK4075: 忽略“/EDITANDCONTINUE”(由于“/SAFESEH”规范)
-LINK : fatal error LNK1104: 无法打开文件“mfc140ud.lib”
