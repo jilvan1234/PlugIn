@@ -3,7 +3,7 @@
 using namespace std;
 
 #ifdef UNICODE
-#define STRING wstring
+#define MYISTRING wstring
 #else
 #define  STRING string
 #endif // UNICODE

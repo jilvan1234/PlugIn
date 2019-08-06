@@ -6,6 +6,6 @@ class CFileManger
 public:
     CFileManger();
     ~CFileManger();
-    virtual STRING GetXbServiceByRegister();
+    virtual MYISTRING GetXbServiceByRegister();
 };
 

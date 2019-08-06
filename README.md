@@ -1,4 +1,7 @@
 # PlugIn
+2019-8-6
+添加远程线程卸载. 远程线程ShellCode注入.封装成类.
+且跨Session 注入.
 
 2019-7-26
 DLLInject:  远程线程注入 ShellCode注入 全局钩子注入

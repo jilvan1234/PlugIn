@@ -1,0 +1,8 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+f:\公司文档\公司代码\plugin\dllinject\createthreadremoteinject\injectdll\inject\dllmain.cpp(22): warning C4101: “hThread”: 未引用的局部变量
+  Inject.cpp
+  正在生成代码
+  All 1 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  Inject.vcxproj -> F:\公司文档\公司代码\PlugIn\DllInject\CreateThreadRemoteInject\InjectDll\Inject\x64\Release\Inject.dll

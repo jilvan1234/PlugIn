@@ -46,7 +46,7 @@ class CTerminateProcess
 #define STRING       wstring
 #define AWCSTR        LPCWSTR
 #else
-#define STRING       string
+#define MYISTRING       string
 #define AWCSTR       LPCSTR
 #endif
 
@@ -70,17 +70,17 @@ public:
 	virtual BOOL ZwTerminateProcess(DWORD dwPid, DWORD dwExitcode);
 
 	//遍历进程.获取进程
-	virtual BOOL GetProcessPidByName(STRING pszName,DWORD &pid,LPVOID AdditionalParameter);
+	virtual BOOL GetProcessPidByName(MYISTRING pszName,DWORD &pid,LPVOID AdditionalParameter);
 
 	// 初始化你要查找进程的map表
 	virtual BOOL InitSpecifyAProcessName(LPVOID AdditionalParameter);
 	//添加你要查找进程的map表
-	virtual BOOL AddSpecifyAProcessName(STRING map_Key,STRING map_value,LPVOID AdditionalParameter);
+	virtual BOOL AddSpecifyAProcessName(MYISTRING map_Key,MYISTRING map_value,LPVOID AdditionalParameter);
 
 
 	virtual BOOL InitSpecifyAModuleName(LPVOID AdditionalParameter);
 	//添加你要查找进程的map表
-	virtual BOOL AddSpecifyAModuleName(STRING MuiteMap_Key, STRING MuiteMap_Value, LPVOID AdditionalParameter);
+	virtual BOOL AddSpecifyAModuleName(MYISTRING MuiteMap_Key, MYISTRING MuiteMap_Value, LPVOID AdditionalParameter);
 
 
 	//通过指定名字进行遍历模块.返回其进程PID
@@ -92,7 +92,7 @@ public:
 	virtual BOOL DoesDLLExistAnFindStrBySubStrName(DWORD dwPid,
 		DWORD Begin,
 		DWORD end,
-		STRING ArgFindStrSubStrName);
+		MYISTRING ArgFindStrSubStrName);
 
 	//进程DLL特征检测.检测给定的进程ID下的所有DLL.判断是否是
 	virtual BOOL ProcessDLLFeatureDetection(DWORD dwPid, LPVOID AdditionalParameter);
@@ -107,8 +107,8 @@ public:
 	virtual BOOL EnableSuspendAnResumeProcess(DWORD dwPid,BOOL IsSupendProcess,LPVOID AdditionalParameter);
 
 protected:
-	map<STRING, STRING> *m_SpecifyAProcessName;
-	multimap<STRING, STRING> *m_SpecifyAModuleName; //模块名不允许重复.
+	map<MYISTRING, MYISTRING> *m_SpecifyAProcessName;
+	multimap<MYISTRING, MYISTRING> *m_SpecifyAModuleName; //模块名不允许重复.
 
 	typedef DWORD(WINAPI* NtSuspendProcess)(HANDLE ProcessHandle);
 	typedef DWORD(WINAPI* NtResumeProcess)(HANDLE hProcess);

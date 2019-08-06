@@ -6,6 +6,6 @@ class CRetStartFileName :
 public:
     CRetStartFileName();
     virtual ~CRetStartFileName();
-    virtual STRING GetStartFileName();
+    virtual MYISTRING GetStartFileName();
 };
 

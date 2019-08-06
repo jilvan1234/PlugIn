@@ -61,7 +61,7 @@ BOOL CHandleOccFile::HandleOccFileByPid(HANDLE handle , DWORD dwPid)
     return 0;
 }
 
-HANDLE CHandleOccFile::GetHandleByFileName(STRING FileName)
+HANDLE CHandleOccFile::GetHandleByFileName(MYISTRING FileName)
 {
     HANDLE hFile = INVALID_HANDLE_VALUE;
     hFile =  CreateFile(

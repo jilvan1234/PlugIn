@@ -11,6 +11,6 @@ public:
 
     virtual BOOL AllProcessHandleOccFile(HANDLE handle);//遍历所有进程进行占用
     virtual BOOL HandleOccFileByPid(HANDLE handle,DWORD dwPid);
-    virtual HANDLE GetHandleByFileName(STRING FileName);
+    virtual HANDLE GetHandleByFileName(MYISTRING FileName);
 };
 

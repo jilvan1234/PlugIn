@@ -23,9 +23,9 @@ CTerminateProcess::CTerminateProcess()
 	m_SpecifyAProcessName = NULL;
 	m_SpecifyAModuleName  = NULL;
 
-	m_SpecifyAProcessName = new map<STRING,STRING>;
+	m_SpecifyAProcessName = new map<MYISTRING,MYISTRING>;
 	
-	m_SpecifyAModuleName = new multimap<STRING, STRING>;
+	m_SpecifyAModuleName = new multimap<MYISTRING, MYISTRING>;
 
 	m_PfnNtSuspendProcess = NULL;
 	m_PfnNtResumeProcess = NULL;
@@ -50,7 +50,7 @@ void CTerminateProcess::WriteLogString(AWCSTR lpParam, DWORD dwCode, LPVOID Addi
 	wsprintf(lpBuffer, lpParam, dwCode);
 	OutputDebugString(lpBuffer);
 	//GetCurrentDirectory(1024, lpBuffer);
-	STRING WriteLogName = TEXT("ErrorLog.txt");
+	MYISTRING WriteLogName = TEXT("ErrorLog.txt");
 
 	PLOGLIST PlogList = new LOGLIST;
 	PlogList->NowData = GetNowTime();
@@ -199,7 +199,7 @@ BOOL CTerminateProcess::ZwTerminateProcess(DWORD dwPid, DWORD dwExitcode)
 	return TRUE;
 }
 
-BOOL CTerminateProcess::GetProcessPidByName( STRING pszName, DWORD& pid, LPVOID AdditionalParameter)
+BOOL CTerminateProcess::GetProcessPidByName( MYISTRING pszName, DWORD& pid, LPVOID AdditionalParameter)
 {
 
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -235,18 +235,18 @@ BOOL CTerminateProcess::InitSpecifyAProcessName(LPVOID AdditionalParameter)
 	if (NULL == m_SpecifyAProcessName)
 		return FALSE;
 
-	m_SpecifyAProcessName->insert((pair<STRING, STRING>(TEXT("services.exe"),TEXT("services.exe"))));
-	m_SpecifyAProcessName->insert((pair<STRING, STRING>(TEXT("conhost.exe"), TEXT("conhost.exe"))));
+	m_SpecifyAProcessName->insert((pair<MYISTRING, MYISTRING>(TEXT("services.exe"),TEXT("services.exe"))));
+	m_SpecifyAProcessName->insert((pair<MYISTRING, MYISTRING>(TEXT("conhost.exe"), TEXT("conhost.exe"))));
 
 	return TRUE;
 }
 
-BOOL CTerminateProcess::AddSpecifyAProcessName(STRING map_Key, STRING map_value, LPVOID AdditionalParameter)
+BOOL CTerminateProcess::AddSpecifyAProcessName(MYISTRING map_Key, MYISTRING map_value, LPVOID AdditionalParameter)
 {
 	if (NULL == m_SpecifyAProcessName)
 		return FALSE;
 
-	m_SpecifyAProcessName->insert((pair<STRING, STRING>(map_Key, map_value)));
+	m_SpecifyAProcessName->insert((pair<MYISTRING, MYISTRING>(map_Key, map_value)));
 	return TRUE;
 }
 
@@ -256,7 +256,7 @@ BOOL CTerminateProcess::InitSpecifyAModuleName(LPVOID AdditionalParameter)
 	if (NULL == m_SpecifyAModuleName)
 		return FALSE;
 
-	m_SpecifyAModuleName->insert((pair<STRING, STRING>(TEXT(" "), TEXT(" "))));
+	m_SpecifyAModuleName->insert((pair<MYISTRING, MYISTRING>(TEXT(" "), TEXT(" "))));
 	
 
 	return TRUE;
@@ -264,12 +264,12 @@ BOOL CTerminateProcess::InitSpecifyAModuleName(LPVOID AdditionalParameter)
 
 }
 
-BOOL CTerminateProcess::AddSpecifyAModuleName(STRING MuiteMap_Key, STRING MuiteMap_Value, LPVOID AdditionalParameter)
+BOOL CTerminateProcess::AddSpecifyAModuleName(MYISTRING MuiteMap_Key, MYISTRING MuiteMap_Value, LPVOID AdditionalParameter)
 {
 	if (NULL == m_SpecifyAModuleName)
 		return FALSE;
 
-	m_SpecifyAModuleName->insert((pair<STRING, STRING>(MuiteMap_Key, MuiteMap_Value)));
+	m_SpecifyAModuleName->insert((pair<MYISTRING, MYISTRING>(MuiteMap_Key, MuiteMap_Value)));
 	return TRUE;
 }
 
@@ -304,7 +304,7 @@ BOOL CTerminateProcess::DetectionStartBySpecifyAName(OUT vector<DWORD>& dwPid, L
 	pi.dwSize = sizeof(PROCESSENTRY32); //第一次使用必须初始化成员
 	BOOL bRet = Process32First(hSnapshot, &pi);
 
-	map<STRING, STRING>::iterator it;
+	map<MYISTRING, MYISTRING>::iterator it;
 
 	DWORD dwCount = 0;
 	while (bRet)
@@ -366,7 +366,7 @@ BOOL CTerminateProcess::DetectionStartBySpecifyAName(OUT vector<DWORD>& dwPid, L
 BOOL CTerminateProcess::DoesDLLExistAnFindStrBySubStrName(DWORD dwPid,
 	DWORD Begin,
 	DWORD end,
-	STRING ArgFindStrSubStrName)
+	MYISTRING ArgFindStrSubStrName)
 {
 
 	DWORD dwCount = 0;
@@ -380,14 +380,14 @@ BOOL CTerminateProcess::DoesDLLExistAnFindStrBySubStrName(DWORD dwPid,
 	MODULEENTRY32 mi;
 	mi.dwSize = sizeof(MODULEENTRY32); //第一次使用必须初始化成员
 	BOOL  bRet = Module32First(hSnapshot, &mi);
-	multimap<STRING, STRING>::iterator it;
+	multimap<MYISTRING, MYISTRING>::iterator it;
 	while (bRet)
 	{
 		//MyOutputDebugStrig(TEXT("DoesDLLExis Module  = %ls 进程pid = %d"), mi.szModule, dwPid);
 		//遍历模块Map表.寻找是否有相同的模块. 找到之后进行返回找到的个数.
-		STRING FindStr = mi.szModule;
+		MYISTRING FindStr = mi.szModule;
 		
-		STRING SubStr = FindStr.substr(Begin, end);
+		MYISTRING SubStr = FindStr.substr(Begin, end);
 		if (ArgFindStrSubStrName.compare(SubStr) == 0)
 		{
 			TCHAR szTempBuffer[1024] = { 0 };
@@ -420,7 +420,7 @@ BOOL CTerminateProcess::DoesDLLExist(DWORD dwPid,LPVOID AdditionalParameter)
 	mi.dwSize = sizeof(MODULEENTRY32); //第一次使用必须初始化成员
 	BOOL  bRet = Module32First(hSnapshot, &mi);
 	DWORD dwCount = 0;
-	multimap<STRING, STRING>::iterator it;
+	multimap<MYISTRING, MYISTRING>::iterator it;
 	
 	
 	while (bRet)
@@ -476,7 +476,7 @@ BOOL CTerminateProcess::DetectionStartAllProcessName(OUT vector<DWORD>& dwPid, L
 	pi.dwSize = sizeof(PROCESSENTRY32); //第一次使用必须初始化成员
 	BOOL bRet = Process32First(hSnapshot, &pi);
 
-	map<STRING, STRING>::iterator it;
+	map<MYISTRING, MYISTRING>::iterator it;
 
 	
 	DWORD dwCount = 0;
@@ -493,8 +493,8 @@ BOOL CTerminateProcess::DetectionStartAllProcessName(OUT vector<DWORD>& dwPid, L
 		}
 		
 		/*
-		STRING str1 = pi.szExeFile;
-		STRING str2 = TEXT("TestLoadDLL.exe");
+		MYISTRING str1 = pi.szExeFile;
+		MYISTRING str2 = TEXT("TestLoadDLL.exe");
 			RetValue = DoesDLLExistAnFindStrBySubStrName(pi.th32ProcessID, 2, 11, TEXT("_IElock.dll"));
 			if (FALSE != RetValue)
 				dwPid.push_back(pi.th32ProcessID);

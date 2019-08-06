@@ -18,13 +18,22 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CTerminateProcess.cpp">
+    <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CTerminateProcess.h">
+    <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\publicstruct.h">
+      <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@ CRetStartFileName::~CRetStartFileName()
 {
 }
 
-STRING CRetStartFileName::GetStartFileName()
+MYISTRING CRetStartFileName::GetStartFileName()
 {
     //获取临时目录下的 pro文件进行启动.
     TCHAR SaveTempPath[MAX_PATH * sizeof(TCHAR)] = { NULL };
@@ -29,5 +29,5 @@ STRING CRetStartFileName::GetStartFileName()
     /*TempFileName.append(TEXT("\\System32"));
     TempFileName.append(TEXT("\\"));
     TempFileName.append(TEXT("RmClient.exe"));*/
-    return STRING(TempFileName);
+    return MYISTRING(TempFileName);
 }

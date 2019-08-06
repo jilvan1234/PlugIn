@@ -18,13 +18,13 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CTerminateProcess.cpp">
+    <ClCompile Include="CProcessOpt.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CTerminateProcess.h">
-      <Filter>源文件</Filter>
+    <ClInclude Include="CProcessOpt.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

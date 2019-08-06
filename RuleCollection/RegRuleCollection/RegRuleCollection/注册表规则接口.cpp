@@ -16,13 +16,15 @@ using namespace std;
 
 #include <Aclapi.h> 
 #pragma comment (lib,"Advapi32.lib")
+
 //获取注册表类型.
 HKEY GetRootKeyType(STRING strRoot)
 {
 
     STRING strType = TEXT("");
-   // STRING strRoot;
+    //删除头部空格.
     strRoot.erase(0, strRoot.find_first_not_of(TEXT(" ")));
+
     strType = TEXT("HKEY_CLASSES_ROOT");
     if (strRoot.compare(strType) == 0)
     {
@@ -134,24 +136,20 @@ BOOL TheRightToRaise()
 
 
 
-BOOL FindKey(STRING &FindValue, LPCTSTR lpwszValue, HKEY hRootKey, STRING &strSubKey, HKEY hhKey)
+BOOL FindKey(HKEY hRootKey, STRING strSubKey, REGSAM samDesired)
 {
  
         //Value 为NULL.代表要找key是否存在
 
+        HKEY hhKey;
         BOOL bRet = ERROR_SUCCESS;
-        //设置注册表权限方便方便访问..暂时测试...
-     /*   if (hRootKey == HKEY_LOCAL_MACHINE)
-        {
-            SetRegPrivilege(STRING(TEXT("MACHINE")).append(strSubKey));
-        }*/
-
+        
 
         bRet = RegOpenKeyEx(
             hRootKey,
             strSubKey.c_str(),
             NULL,
-            KEY_ALL_ACCESS | KEY_WOW64_32KEY,
+            samDesired,
             &hhKey
         );
         if (bRet == ERROR_SUCCESS && hhKey != NULL)
@@ -164,24 +162,26 @@ BOOL FindKey(STRING &FindValue, LPCTSTR lpwszValue, HKEY hRootKey, STRING &strSu
     
 }
 
-BOOL FindValues(STRING &RuleCollection, LPCTSTR lpwszKey, HKEY hRootKey, STRING &strSubKey, HKEY hhKey, STRING FindValue)
+BOOL FindValues(HKEY hRootKey, STRING strSubKey, STRING FindValue, REGSAM samDesired)
 {
    
         //代表要查看Value是否存在.
         BOOL bRet = ERROR_SUCCESS;
+        HKEY hhKey = NULL; 
         bRet = RegOpenKeyEx(
             hRootKey,
             strSubKey.c_str(),
             NULL,
-            KEY_ALL_ACCESS | KEY_WOW64_32KEY,
+            samDesired,
             &hhKey
         );
         if (bRet != ERROR_SUCCESS && hhKey == NULL)
         {
-            //代表Key存在.返回True;
+            
             RegCloseKey(hhKey);
-            return FALSE;                   //代表失败.返回False
+            return FALSE;                  
         }
+
         //遍历获取Key的值.
 
 
@@ -196,9 +196,7 @@ BOOL FindValues(STRING &RuleCollection, LPCTSTR lpwszKey, HKEY hRootKey, STRING 
         DWORD    cbSecurityDescriptor; // size of security descriptor   
         FILETIME ftLastWriteTime;      // last write time   
 
-
-
-        DWORD cchValue = MAX_PATH;
+      
         DWORD i = 0;
         // Get the class name and the value count.   
         bRet = RegQueryInfoKey(
@@ -214,17 +212,20 @@ BOOL FindValues(STRING &RuleCollection, LPCTSTR lpwszKey, HKEY hRootKey, STRING 
             &cbMaxValueData,         // longest value data   
             &cbSecurityDescriptor,   // security descriptor   
             &ftLastWriteTime);       // last write time   
+
         if (bRet != ERROR_SUCCESS && cValues <= 0)
         {
             //代表这个Key下面没有对应的Value. 所以也就不用查找对应的Value值了.
             RegCloseKey(hhKey);
             return FALSE;
         }
+
         TCHAR KeyValueName[MAX_PATH] = TEXT("");
         DWORD dwKeyValueNameSize = sizeof(TCHAR) * MAX_PATH;
         TCHAR lpClass[MAX_PATH] = TEXT("");
-        DWORD dwLpClassSize = sizeof(TCHAR) * MAX_PATH;
         STRING KeyValueCompare = TEXT("");
+
+        //遍历值.
         for (i = 0; i < cValues; i++)
         {
             dwKeyValueNameSize = sizeof(TCHAR) * MAX_PATH; //每次调用完之后就会清空长度.所以长度每次都要赋值.
@@ -238,12 +239,14 @@ BOOL FindValues(STRING &RuleCollection, LPCTSTR lpwszKey, HKEY hRootKey, STRING 
                 NULL,
                 NULL
             );
+
             if (bRet != ERROR_SUCCESS)
             {
-                //缓冲区太小导致失败.
+                
                 RegCloseKey(hhKey);
                 return FALSE;
             }
+            //比较Value
             KeyValueCompare = KeyValueName;
             if (KeyValueCompare.compare(FindValue) == 0)
             {
@@ -252,64 +255,87 @@ BOOL FindValues(STRING &RuleCollection, LPCTSTR lpwszKey, HKEY hRootKey, STRING 
             }
 
         }
-
-        return FALSE;
+   RegCloseKey(hhKey);
+  return FALSE;
 
 }
 
-BOOL RetRegistry(LPCTSTR lpwszKey, LPCTSTR lpwszValue)
+BOOL RetRegistry(LPCTSTR lpwszKey, LPCTSTR lpwszValue, REGSAM samDesired)
 {
 
-    HKEY hRootKey;
-    HKEY hhKey = NULL;
-
+    HKEY hRootKey = 0;
     STRING RuleCollection = TEXT("");
     STRING FindValue = TEXT("");
     STRING strRoot = TEXT("");
     STRING strSubKey = TEXT("");
-   
-    //校验参数.
+    BOOL bRet = FALSE;
+
+    //根据参数获取对应值
     if (NULL != lpwszValue)
     {
         FindValue = lpwszValue;
+       
+        //删除首尾空格
+        FindValue.erase(0, FindValue.find_first_not_of(TEXT(" ")));
+        FindValue.erase(FindValue.find_last_not_of(TEXT(" ")) + 1);
     }
+
     if (NULL != lpwszKey)
     {
         RuleCollection = lpwszKey;
+        
+        
+        RuleCollection.erase(0, RuleCollection.find_first_not_of(TEXT(" ")));
+        RuleCollection.erase(RuleCollection.find_last_not_of(TEXT(" ")) + 1);
     }
     else
     {
         return FALSE;
     }
 
-    //获取主Key
-    strRoot = RuleCollection.substr(0, RuleCollection.find_first_of(TEXT("\\"))); //0 开始获得Key的值.
+    //获取key操作  HKEY_CURRENT_USER\\xxx.....   ===>   strRoot = "HKEY_CURRENT_USER"
+    strRoot = RuleCollection.substr(0, RuleCollection.find_first_of(TEXT("\\"))); 
+
+    //获取子Key    HKEY_CURRENT_USER\\XXXX\XXXX  ===>  strSubKey = \\XXXX\\XXXX
     strSubKey = RuleCollection.substr(RuleCollection.find_first_of(TEXT("\\")));
+    //删除子key头部的\\  strSubKey =  XXXX\\XXXX;
     strSubKey.erase(0,1);
+
+    //hRootKey = HKEY_CURRENT_USER
     hRootKey = GetRootKeyType(strRoot);
     if (NULL == hRootKey)
-        return FALSE;               //说明Rootkey错误.
+        return FALSE;               
 
     //查找Key
-    if (FindValue.empty() || lpwszValue == NULL)
+    
+    bRet =   FindKey(hRootKey, strSubKey, samDesired);
+    if (bRet)
     {
-       return  FindKey(FindValue, lpwszValue, hRootKey, strSubKey, hhKey);
+        //查看VALUE是否存在,不存在则找Key
+        if (FindValue.empty() || NULL == lpwszValue) 
+            return TRUE;
+
+        //查找Value Key != NULL Value != NULL FindValue
+        if (!FindValue.empty() && NULL != lpwszValue)
+        {
+            if (!RuleCollection.empty() && lpwszKey != NULL)
+            {
+                return FindValues(hRootKey, strSubKey, FindValue, samDesired); //返回Value的值.
+            }
+            return FALSE;
+        }
+        return FALSE;
     }
     
-    if (!RuleCollection.empty() && lpwszKey != NULL)
-    {
-       return FindValues(RuleCollection, lpwszKey, hRootKey, strSubKey, hhKey, FindValue);
-    }
-
-    //否则两个情况都有.
 
     return FALSE;
 }
 int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ char** argv, _In_z_ _TCHAR** envp)
 {
-    TheRightToRaise();
+
+
+    TheRightToRaise();  //提升进程权限.
    // RetRegistry(TEXT("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"),TEXT("ImagePath"));
     BOOL bRet = FALSE;
-    bRet = RetRegistry(TEXT("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"), TEXT("ObjectName"));
-
+    bRet = RetRegistry(TEXT("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service\\AA BB         "),TEXT("  11  "),KEY_ALL_ACCESS);
 }

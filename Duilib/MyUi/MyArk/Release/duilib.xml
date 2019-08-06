@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="800,600" mininfo="600,400" caption="0,0,0,32" sizebox="4,4,4,4"> <!-- 窗口的初始尺寸(宽800，高600)、窗口的最小尺寸(宽600，高400)、标题栏拖拽区域(高32)、可拖拽边框大小(这里添加sizebox后就可以拖拽边框调整大小了) -->
+    <VerticalLayout bkcolor="#FFF0FFF0" bkcolor2="#FFF0FFF0"> <!-- 整个窗口的背景色 -->
+        <!-- 标题栏区 -->
+        <HorizontalLayout height="40" bkcolor="#ffff9933" bkcolor2="#ffcc3333" bkcolor3 = "#ffff9933"> <!-- 标题栏背景色 bkcolor、bkcolor2、bkcolor3分别是渐变色的三个值-->         
+            <VerticalLayout /> <!-- 占空位，占据左边所有的空位-->
+            <VerticalLayout width="77"> <!-- 右边三个控件所占的宽度-->
+             
+                <Button name="closebtn" tooltip="关闭"   float="true" pos="44,5,74,24" width="28" normalimage=" file='image\CloseBtn1.bmp' " hotimage=" file='SysBtn\CloseFocus.bmp' " pushedimage=" file='SysBtn\CloseFocus.bmp' "/>
+				
+            </VerticalLayout>      
+        </HorizontalLayout>
+        
+        <!-- 客户区 -->
+		
+        <HorizontalLayout>
+       <Edit name = "testedit" text = "hellord" />
+    </HorizontalLayout>
+    </VerticalLayout>
+</Window>

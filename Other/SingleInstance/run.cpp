@@ -1,42 +1,45 @@
-/*
-»¥³âÌå´´½¨µ¥Ò»ÊµÀý
-
-*/
-
-
-#include <stdio.h>
-#include <windows.h>
-#include <tchar.h>
+ï»¿#include <Windows.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include "CProcessOpt.h"
 
 
-BOOL IsAlreadyRun()
+int main()
 {
-    HANDLE hMutex = NULL;
-    hMutex = ::CreateMutex(NULL, FALSE, TEXT("TEST")); //false´ú±í²»ÊÇÈÎºÎÏß³ÌËùÓµÓÐµÄ.´ú±íÓÐÐÅºÅ.
-    if (hMutex)
+    HANDLE hMutex1 = CreateMutex(NULL, TRUE, "{B8592103-AE8C-4D37-807F-F1CB76E62B7C}");
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
-        if (ERROR_ALREADY_EXISTS == ::GetLastError())
+        OutputDebugString("1111111111111111111111111111\r\n");
+        OutputDebugString("1111111111111111111111111111\r\n");
+        return 0;
+    }
+    HANDLE hProcess = 0;
+    HANDLE hTarProcess = 0;
+    CProcessOpt PsOpt;
+    PsOpt.SeEnbalAdjustPrivileges(SE_DEBUG_NAME);
+    DWORD dwErrorCode = 0;
+    for (int i = 0; i < 10000; i += 4)
+    {
+        hProcess = PsOpt.PsGetProcess(i);
+        if (hProcess != 0)
         {
-            return TRUE;
+            dwErrorCode =  DuplicateHandle(GetCurrentProcess(),hMutex1 , hProcess, &hTarProcess, 0, 0, DUPLICATE_SAME_ACCESS);
+            if (dwErrorCode != 0)
+            {
+                CloseHandle(hProcess);
+                CloseHandle(hMutex1);
+                return 0;
+            }
+            continue;
         }
     }
     
-    return FALSE;
-}
-
-
-int _tmain(int argc, _TCHAR* argv[])
-{
-    // ÅÐ¶ÏÊÇ·ñÖØ¸´ÔËÐÐ
-    if (IsAlreadyRun())
-    {
-        printf("Already Run!!!!\n");
-    }
-    else
-    {
-        printf("NOT Already Run!\n");
-    }
-
-    system("pause");
+    
+    //while (true)
+    //{
+    //    Sleep(180000); // å»¶è¿Ÿä¸‰åˆ†é’Ÿ.
+    //    return 0;
+    //}
     return 0;
+
 }

@@ -37,5 +37,6 @@
     <None Include="bin3.bin">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="Resource\2019730_FOR_218.exe" />
   </ItemGroup>
 </Project>

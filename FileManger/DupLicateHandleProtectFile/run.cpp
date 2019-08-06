@@ -7,7 +7,7 @@
 #include <Psapi.h>
 #include <stdlib.h>
 #ifdef UNICODE
-#define STRING wstring
+#define MYISTRING wstring
 #else
 #define STRING string
 #endif // UNICODE
@@ -256,7 +256,7 @@ BOOL HandleOccFile()
     CFileManger file;
     CHandleOccFile OccHandle;
     HANDLE hFile;
-    STRING XbPath = file.GetXbServiceByRegister();
+    MYISTRING XbPath = file.GetXbServiceByRegister();
     if (XbPath.empty())
     {
         return FALSE;

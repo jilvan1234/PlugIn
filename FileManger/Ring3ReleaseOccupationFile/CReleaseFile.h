@@ -15,8 +15,8 @@ public:
 
     PSYSTEM_PROCESSES GetProcessInfo();
     PSYSTEM_HANDLE_INFORMATION  GetHandleBasicInfo();
-    BOOL RemoteFileByHandle(STRING fileName, HANDLE hProcess, HANDLE Handle);
-    BOOL CloseHandleForFile(STRING fileName);
+    BOOL RemoteFileByHandle(MYISTRING fileName, HANDLE hProcess, HANDLE Handle);
+    BOOL CloseHandleForFile(MYISTRING fileName);
 
 
 private:

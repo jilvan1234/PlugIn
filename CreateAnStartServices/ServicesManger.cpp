@@ -35,7 +35,7 @@ BOOL ServicesManger::ScOpenManger()
     return TRUE;
 }
 
-BOOL ServicesManger::ScCreateServices(STRING strServicePath,STRING strServiceName,STRING strShowServiceName,DWORD dwStartType)
+BOOL ServicesManger::ScCreateServices(MYISTRING strServicePath,MYISTRING strServiceName,MYISTRING strShowServiceName,DWORD dwStartType)
 {
     /*
     m_CreatService =  CreateService(
@@ -76,7 +76,7 @@ BOOL ServicesManger::ScCreateServices(STRING strServicePath,STRING strServiceNam
     return TRUE;
 }
 
-BOOL ServicesManger::ScStartServices(STRING ServiceName)
+BOOL ServicesManger::ScStartServices(MYISTRING ServiceName)
 {
     BOOL bRet = FALSE;
     if (NULL == m_OpenManger)
@@ -94,7 +94,7 @@ BOOL ServicesManger::ScStartServices(STRING ServiceName)
     return TRUE;
 }
 
-BOOL ServicesManger::ScStopServices(STRING ServiceName)
+BOOL ServicesManger::ScStopServices(MYISTRING ServiceName)
 {
     BOOL bRet = FALSE;
     SERVICE_STATUS svcsta;
@@ -114,7 +114,7 @@ BOOL ServicesManger::ScStopServices(STRING ServiceName)
     return TRUE;
 }
 
-BOOL ServicesManger::ScDeleteServices(STRING ServiceName)
+BOOL ServicesManger::ScDeleteServices(MYISTRING ServiceName)
 {
     BOOL bRet = FALSE;
     SERVICE_STATUS svcsta;

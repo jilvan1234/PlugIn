@@ -12,9 +12,9 @@ CFileManger::~CFileManger()
 {
 }
 
-STRING CFileManger::GetXbServiceByRegister()
+MYISTRING CFileManger::GetXbServiceByRegister()
 {
-    STRING str;
+    MYISTRING str;
     HKEY hKey;
     DWORD dwExist = REG_OPENED_EXISTING_KEY;
     RegCreateKeyEx(

@@ -3,7 +3,7 @@
 using namespace std
 ;
 #ifdef UNICODE
-#define STRING wstring
+#define MYISTRING wstring
 #else
 #define STRING string
 #endif // UNICODE
@@ -11,6 +11,6 @@ using namespace std
 class IGetFileName
 {
 public:
-    virtual STRING GetStartFileName() = 0; //获取名字.
+    virtual MYISTRING GetStartFileName() = 0; //获取名字.
 };
 

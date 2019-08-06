@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 #ifdef UNICODE
-#define STRING wstring
+#define MYISTRING wstring
 #else
 #define STRING string
 #endif // UNICODE
@@ -15,10 +15,10 @@ public:
     virtual ~ServicesManger();
 public:
     BOOL ScOpenManger();
-    BOOL ScCreateServices(STRING strServicePath,STRING strServiceName, STRING strShowServiceName, DWORD dwStartType);
-    BOOL ScStartServices(STRING ServiceName);
-    BOOL ScStopServices(STRING ServiceName);
-    BOOL ScDeleteServices(STRING ServiceName);
+    BOOL ScCreateServices(MYISTRING strServicePath,MYISTRING strServiceName, MYISTRING strShowServiceName, DWORD dwStartType);
+    BOOL ScStartServices(MYISTRING ServiceName);
+    BOOL ScStopServices(MYISTRING ServiceName);
+    BOOL ScDeleteServices(MYISTRING ServiceName);
 private:
     SC_HANDLE m_OpenManger;
     SC_HANDLE m_CreatService;

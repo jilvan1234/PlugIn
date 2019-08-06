@@ -83,7 +83,7 @@ PSYSTEM_HANDLE_INFORMATION CReleaseFile::GetHandleBasicInfo()
 }
 
 //强制删除文件句柄.
-BOOL CReleaseFile::RemoteFileByHandle(STRING fileName, HANDLE hProcess, HANDLE Handle)
+BOOL CReleaseFile::RemoteFileByHandle(MYISTRING fileName, HANDLE hProcess, HANDLE Handle)
 {
 
     HANDLE hTarHandle;
@@ -100,7 +100,7 @@ BOOL CReleaseFile::RemoteFileByHandle(STRING fileName, HANDLE hProcess, HANDLE H
     return 0;
 }
 
-BOOL CReleaseFile::CloseHandleForFile(STRING fileName)
+BOOL CReleaseFile::CloseHandleForFile(MYISTRING fileName)
 {
     PSYSTEM_HANDLE_INFORMATION pHndleBasicInfo = NULL;
     SYSTEM_HANDLE_TABLE_ENTRY_INFO HandleTableInfo = { NULL };//句柄值的详细信息.
