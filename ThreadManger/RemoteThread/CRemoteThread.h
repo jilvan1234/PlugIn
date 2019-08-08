@@ -2,6 +2,8 @@
 #include <windows.h>
 #include "publicstruct.h"
 #include "CProcessOpt.h"
+#include "CShellCode.h"
+
 
 using namespace std;
 class CRemoteThread
@@ -14,11 +16,21 @@ public:
     virtual BOOL RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTSTR lpLoadLibraryName);
     //远程卸载模块名字.
     virtual BOOL RtsRemoteUnloadModule(DWORD dwPid,LPCTSTR lpRemoteModelName);
+    //远程线程注入ShellCode
+    virtual BOOL RtsRemoteThreadShellCode(HANDLE hProcess, DWORD dwPid, LPVOID InjectShellCode, UBinSize WriteSize);
+
     //EIP注入DLL
-    virtual BOOL RtsRemoteContext(HANDLE hProcess, DWORD dwPid, LPCTSTR lpLoadLibraryName);
+    BOOL RtsRemoteContextDll(HANDLE hProcess, DWORD dwPid, DWORD dwTid, LPCTSTR lpLoadLibraryName);
 
     //EIP 注入ShellCode
-    virtual BOOL RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, LPVOID InjectShellCode, UBinSize WriteSize);
+    /*
+    1.hProcess 如果为NULL 则dwPid不能为NULL
+    2.dwPid    如果为NULL 则hProcess不能为NULL
+    3.给定的线程TID 不能为NULL
+    4.注入的ShellCode 不能为NULL
+    5.注入ShellCode的大小 不能为NULL
+    */
+    virtual BOOL RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, DWORD dwTid, LPVOID InjectShellCode, UBinSize WriteSize);
 
 
 private:

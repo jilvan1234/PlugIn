@@ -1,4 +1,10 @@
 # PlugIn
+
+2019-8-8
+添加IAT HOOK工程,还未填写.
+添加FileManger工程. 管理文件.正在编写.
+添加共享内存遍历. TestCode里面则是测试共享内存.添加了ShardMemory
+
 2019-8-6
 添加远程线程卸载. 远程线程ShellCode注入.封装成类.
 且跨Session 注入.

@@ -1,9 +1,0 @@
-﻿cl : 命令行 warning D9025: 正在重写“/sdl”(用“/GS-”)
-  stdafx.cpp
-cl : 命令行 warning D9025: 正在重写“/sdl”(用“/GS-”)
-  dllmain.cpp
-  Inject.cpp
-  正在生成代码
-  All 2 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  已完成代码的生成
-  Inject.vcxproj -> F:\公司文档\公司代码\PlugIn\DllInject\CreateThreadRemoteInject\InjectDll\Inject\Release\Inject.dll

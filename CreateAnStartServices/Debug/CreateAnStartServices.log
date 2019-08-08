@@ -1,0 +1,5 @@
+﻿  run1.cpp
+  ServicesManger.cpp
+f:\公司文档\公司代码\plugin\createanstartservices\servicesmanger.cpp(120): warning C4101: “svcsta”: 未引用的局部变量
+  正在生成代码...
+  CreateAnStartServices.vcxproj -> F:\公司文档\公司代码\PlugIn\SystemServices\Debug\CreateAnStartServices.exe

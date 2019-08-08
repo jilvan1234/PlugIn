@@ -63,8 +63,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
         {
             if (NULL != lpBuffer)
                 VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
-            if (NULL != hProcess)
-                CloseHandle(hProcess);
             return FALSE;
         }
 
@@ -72,8 +70,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
         {
             if (NULL != lpBuffer)
                 VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
-            if (NULL != hProcess)
-                CloseHandle(hProcess);
             return FALSE;
         }
         m_ZwCreateThreadEx(&hThreadHandle, PROCESS_ALL_ACCESS, NULL, hProcess, (LPTHREAD_START_ROUTINE)pFuncProcAddr, lpBuffer, 0, 0, 0, 0, NULL);
@@ -83,14 +79,10 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
         {
             if (NULL != lpBuffer)
                 VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
-            if (NULL != hProcess)
-                CloseHandle(hProcess);
             return FALSE;
         }
         if (NULL != lpBuffer)
             VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
-        if (NULL != hProcess)
-            CloseHandle(hProcess);
         return TRUE;
 
     }
@@ -99,7 +91,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
         if (dwPid == 0 || dwPid == 4)
             return FALSE;
         hTempProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
-
 
         if (NULL == hTempProcess)
         {
@@ -120,7 +111,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
                 VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
             if (NULL != hTempProcess)
                 CloseHandle(hTempProcess);
-            OutputDebugString(TEXT("写入内存失败\r\n"));
             return FALSE;
         }
 
@@ -130,7 +120,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
                  VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
              if (NULL != hProcess)
                  CloseHandle(hProcess);
-             OutputDebugString(TEXT("0000000000\r\n"));
              return FALSE;
          }
 
@@ -144,7 +133,6 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
                 VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
             if (NULL != hTempProcess)
                 CloseHandle(hTempProcess);
-            OutputDebugString(TEXT("ininin\r\n"));
             return FALSE;
         }
         if (NULL != lpBuffer)
@@ -175,7 +163,6 @@ BOOL CRemoteThread::RtsRemoteUnloadModule(DWORD dwPid, LPCTSTR lpRemoteModelName
 
  
     HANDLE hProcess = 0;
-    HMODULE mModel;
     SIZE_T  sizWriteBytes = 0;
     LPVOID lpRemoteDllNameBuffer = NULL;
     DWORD dwRetErrorCode = FALSE;
@@ -385,14 +372,11 @@ BOOL CRemoteThread::RtsRemoteUnloadModule(DWORD dwPid, LPCTSTR lpRemoteModelName
 
     }
     return FALSE;*/
+    return FALSE;
 }
 
-BOOL CRemoteThread::RtsRemoteContext(HANDLE hProcess, DWORD dwPid, LPCTSTR lpLoadLibraryName)
-{
-    return 0;
-}
-
-BOOL CRemoteThread::RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, LPVOID InjectShellCode, UBinSize WriteSize)
+//远程线程注入ShellCode
+BOOL CRemoteThread::RtsRemoteThreadShellCode(HANDLE hProcess, DWORD dwPid, LPVOID InjectShellCode, UBinSize WriteSize)
 {
     LPVOID lpRemoteDllNameBuffer = NULL;
     DWORD dwRetErrorCode = NULL;
@@ -456,6 +440,307 @@ BOOL CRemoteThread::RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, LPVO
         return FALSE;
     }
 
+    return FALSE;
+}
+
+//远程EIP注入DLL
+BOOL CRemoteThread::RtsRemoteContextDll(HANDLE hProcess, DWORD dwPid, DWORD dwTid,LPCTSTR lpLoadLibraryName)
+{
+
+    CShellCode Shell;
+    
+    /*
+    构造ShellCode进行注入.
+    
+    
+    */
+    DWORD64 KernelBase = Shell.GetKernelBase();
+
+    CBinString RemotePathString = lpLoadLibraryName;
+    
+    if (hProcess != 0 && lpLoadLibraryName != NULL && !(RemotePathString.empty()))
+    {
+
+    }
+
+    return FALSE;
+}
+
+//远程线程EIP注入ShellCode
+BOOL CRemoteThread::RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, DWORD dwTid, LPVOID InjectShellCode, UBinSize WriteSize)
+{
+
+    /*
+原理:
+    1.挂起线程
+    2.打开线程.获取线程句柄
+    3.根据线程句柄.调用GetThreadContext 获取 EIP 等寄存器信息.
+    4.申请远程内存. 写入ShellCode
+    5.修改远程内存首地址为Context.Eip/rip 的执行地址.
+    6.使用SetThreadContext 设置EIP
+    7.注入完毕.
+    */
+    HANDLE hTemProcess = 0;
+    LPVOID lpRemoteBuffer = NULL;
+    HANDLE hRemoteThread = NULL;
+
+
+    CONTEXT CRemoteContext = { NULL };
+
+   
+    DWORD dwErrorCode = 0;
+    SIZE_T sizeWriteBytes;
+    if (hProcess != 0 && dwTid != 0)
+    {
+        hTemProcess = hProcess;
+        if (0 == hTemProcess)
+            return FALSE;
+
+        hRemoteThread = OpenThread(THREAD_ALL_ACCESS, FALSE, dwTid);
+        if (NULL == hRemoteThread)
+        {
+            //换个权限访问.
+            hRemoteThread = OpenThread(THREAD_SUSPEND_RESUME | THREAD_SET_CONTEXT | THREAD_GET_CONTEXT, FALSE, dwTid);
+            if (NULL == hRemoteThread)
+            {
+              
+                return FALSE;
+            }
+        }
+#ifdef _WIN64
+        dwErrorCode = Wow64SuspendThread(hRemoteThread);
+#else
+        dwErrorCode = SuspendThread(hRemoteThread);
+#endif
+        
+        if (-1 == dwErrorCode)
+        {
+
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE; //挂起失败,返回先前挂起的计数.
+        }
+
+        CRemoteContext.ContextFlags = CONTEXT_FULL;
+#ifdef _WIN64
+
+        //dwErrorCode = Wow64GetThreadContext(hRemoteThread, &CRemoteContext);
+        dwErrorCode = GetThreadContext(hRemoteThread, &CRemoteContext);
+#else
+        dwErrorCode = GetThreadContext(hRemoteThread, &CRemoteContext);
+#endif
+        if (dwErrorCode == 0)
+        {
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE;
+        }
+
+        //申请远程函数地址
+        lpRemoteBuffer = VirtualAllocEx(hTemProcess, 0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        if (NULL == lpRemoteBuffer)
+        {
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE;
+        }
+
+        //写入ShellCode
+
+        if (WriteSize <= 0 || WriteSize > 0x1000)
+        {
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE;
+        }
+        dwErrorCode = WriteProcessMemory(hTemProcess, lpRemoteBuffer, InjectShellCode, WriteSize, &sizeWriteBytes);
+
+
+        if (0 == dwErrorCode)
+        {
+            printf("w error = %d \r\n", GetLastError());
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (NULL != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE;
+        }
+        
+        //设置Context EIP的值为远程ShellCode起始地址
+#ifdef _WIN64
+
+        CRemoteContext.Rip = (DWORD64)lpRemoteBuffer;
+       // dwErrorCode = Wow64SetThreadContext(hRemoteThread, &CRemoteContext);
+        SetThreadContext(hRemoteThread, &CRemoteContext);
+        ResumeThread(hRemoteThread);
+        if (0 != hRemoteThread)
+            CloseHandle(hRemoteThread);
+        return TRUE;
+#else
+        //32位下
+
+        CRemoteContext.Eip = (DWORD)lpRemoteBuffer;
+        dwErrorCode = SetThreadContext(hRemoteThread, &CRemoteContext);
+        dwErrorCode = ResumeThread(hRemoteThread);
+        if (dwErrorCode == -1)
+        {
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            return FALSE;
+        }
+        while (dwErrorCode != 0)
+        {
+
+            dwErrorCode = ResumeThread(hRemoteThread);
+            if (dwErrorCode <= 0)
+            {
+                break;
+            }
+        }
+        if (0 != hRemoteThread)
+            CloseHandle(hRemoteThread);
+        /*  if (isReleaseShellCodeMemory == TRUE)
+              VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);*/
+        return TRUE;
+#endif // _WIN64
+
+
+    }
+    else if (dwPid != 0 && dwPid != 4 && dwTid != 0)
+    {
+        hTemProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
+        if (0 == hTemProcess)
+            return FALSE;
+
+        hRemoteThread = OpenThread(THREAD_ALL_ACCESS,FALSE,dwTid);
+        if (NULL == hRemoteThread)
+        {
+            //换个权限访问.
+            hRemoteThread = OpenThread(THREAD_SUSPEND_RESUME | THREAD_SET_CONTEXT | THREAD_GET_CONTEXT, FALSE, dwTid);
+            if (NULL == hRemoteThread)
+            {
+                if (0 != hTemProcess)
+                    CloseHandle(hTemProcess);
+                return FALSE;
+            }
+        }
+         
+#ifdef _WIN64
+        dwErrorCode = Wow64SuspendThread(hRemoteThread);
+#else
+        dwErrorCode = SuspendThread(hRemoteThread);
+#endif
+        if (-1 == dwErrorCode)
+        {
+            
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (0 != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE; //挂起失败,返回先前挂起的计数.
+        }
+
+        CRemoteContext.ContextFlags = CONTEXT_FULL;
+#ifdef _WIN64
+        
+        //dwErrorCode = Wow64GetThreadContext(hRemoteThread, &CRemoteContext);
+        dwErrorCode = GetThreadContext(hRemoteThread, &CRemoteContext);
+#else
+        dwErrorCode = GetThreadContext(hRemoteThread, &CRemoteContext);
+#endif
+        
+        if (dwErrorCode == 0)
+        {
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (0 != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE;
+        }
+
+        //申请远程函数地址
+        lpRemoteBuffer = VirtualAllocEx(hTemProcess, 0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        if (NULL == lpRemoteBuffer)
+        {
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (0 != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE;
+        }
+
+        //写入ShellCode
+      
+        if (WriteSize <= 0 || WriteSize > 0x1000)
+        {
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (0 != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE;
+        }
+        dwErrorCode = WriteProcessMemory(hTemProcess, lpRemoteBuffer, InjectShellCode, WriteSize, &sizeWriteBytes);
+      
+
+        if (0 == dwErrorCode)
+        {
+            printf("w error = %d \r\n", GetLastError());
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (NULL != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (NULL != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE;
+        }
+        printf("addr = %p  \r\n", lpRemoteBuffer);
+        //设置Context EIP的值为远程ShellCode起始地址
+#ifdef _WIN64
+
+        CRemoteContext.Rip = (DWORD64)lpRemoteBuffer;
+        //dwErrorCode = Wow64SetThreadContext(hRemoteThread, &CRemoteContext);
+        dwErrorCode = SetThreadContext(hRemoteThread, &CRemoteContext);
+        ResumeThread(hRemoteThread);
+        if (0 != hRemoteThread)
+            CloseHandle(hRemoteThread);
+        if (0 != hTemProcess)
+            CloseHandle(hTemProcess);
+       
+        return TRUE;
+#else
+        //32位下
+
+        CRemoteContext.Eip = (DWORD)lpRemoteBuffer;
+        dwErrorCode =  SetThreadContext(hRemoteThread, &CRemoteContext);
+        dwErrorCode = ResumeThread(hRemoteThread);
+        if (dwErrorCode == -1)
+        {
+            if (NULL != lpRemoteBuffer)
+                VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);
+            if (0 != hRemoteThread)
+                CloseHandle(hRemoteThread);
+            if (0 != hTemProcess)
+                CloseHandle(hTemProcess);
+            return FALSE;
+        }
+      
+        if (0 != hRemoteThread)
+            CloseHandle(hRemoteThread);
+        if (0 != hTemProcess)
+            CloseHandle(hTemProcess);
+      /*  if (isReleaseShellCodeMemory == TRUE)
+            VirtualFreeEx(hTemProcess, lpRemoteBuffer, 0, MEM_RELEASE);*/
+        return TRUE;
+#endif // _WIN64
+
+        
+    }
     return FALSE;
 }
 

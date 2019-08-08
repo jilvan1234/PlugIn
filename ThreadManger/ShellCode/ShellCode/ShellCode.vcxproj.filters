@@ -15,31 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="run.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.h">
+    <ClInclude Include="CShellCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\publicstruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="x64AsmShellCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CShellCode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

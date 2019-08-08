@@ -15,28 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CRemoteThread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ShellCode\ShellCode\CShellCode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClInclude Include="CFileManger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CRemoteThread.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\publicstruct.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ShellCode\ShellCode\CShellCode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <ClCompile Include="CFileManger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

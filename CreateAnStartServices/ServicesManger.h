@@ -5,7 +5,7 @@ using namespace std;
 #ifdef UNICODE
 #define MYISTRING wstring
 #else
-#define STRING string
+#define MYISTRING string
 #endif // UNICODE
 
 class ServicesManger

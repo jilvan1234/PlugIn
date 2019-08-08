@@ -78,11 +78,11 @@
     <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);../../../ThreadManger\ShellCode\ShellCode</IncludePath>
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);../../../ThreadManger\ShellCode\ShellCode</IncludePath>
     <OutDir>$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -139,12 +139,14 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp" />
     <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp" />
+    <ClCompile Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.cpp" />
     <ClCompile Include="run.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h" />
     <ClInclude Include="..\..\..\publicstruct.h" />
     <ClInclude Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.h" />
+    <ClInclude Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

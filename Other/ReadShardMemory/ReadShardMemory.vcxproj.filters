@@ -18,27 +18,21 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
+    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.cpp">
+    <ClCompile Include="..\..\FileManger\CFileManger\CFileManger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
+    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.h">
+    <ClInclude Include="..\..\publicstruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\publicstruct.h">
+    <ClInclude Include="..\..\FileManger\CFileManger\CFileManger.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
