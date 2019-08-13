@@ -7,30 +7,39 @@
 int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ _TCHAR** envp)
 {
    
-    getchar();
-    system("pause");
+    //getchar();
+    //system("pause");
 
-    //A进程 申请物理页
-    HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 0x1000, TEXT("共享内存"));
+    ////A进程 申请物理页
+    //HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 0x1000, TEXT("共享内存"));
 
-    if (NULL == hMap)
-        return FALSE;
+    //if (NULL == hMap)
+    //    return FALSE;
 
-    //2.映射虚拟内存(线性地址的)
-    LPVOID lpBuf = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0x1000);
+    ////2.映射虚拟内存(线性地址的)
+    //LPVOID lpBuf = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0x1000);
 
-    // A进程写内存
+    //char szBuff[0x100] = "xbbrowser.exe";
+    //memcpy(lpBuf, szBuff, 0x100);
+    //// A进程写内存
 
-    printf("映射内存成功%p \r\n",lpBuf);
-    getchar();
-    system("pause");
+    //printf("映射内存成功%p \r\n",lpBuf);
+    //getchar();
+    //system("pause");
 
-    printf("是否开始卸载内存\r\n");
-    //UnmapViewOfFile(lpBuf);
-    system("pause");
-    CloseHandle(hMap);
+    //printf("是否开始卸载内存\r\n");
+    ////UnmapViewOfFile(lpBuf);
+    //system("pause");
+    //CloseHandle(hMap);
 
-    system("pause");
+    //system("pause");
+
+    STARTUPINFO si = { 0 };
+    si.cb = sizeof(STARTUPINFO);
+    PROCESS_INFORMATION pi = { 0 };
+    TCHAR szCmd[] = TEXT("calc.exe");
+    CreateProcess(NULL, szCmd, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+
 
     return 0;
 

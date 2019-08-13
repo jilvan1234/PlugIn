@@ -8,7 +8,7 @@ CProcessOpt::CProcessOpt()
     m_PfnNtSuspendProcess = NULL;
     m_PfnNtResumeProcess = NULL;
     m_PfnNtTerminateProcess = NULL;
-
+    m_NtQuerySytemInforMation = NULL;
     InitFunctionTablePoint(); //初始化函数表
 
 }
@@ -360,7 +360,40 @@ BOOL CProcessOpt::PsTerminateProcessTheModifyPermission(DWORD dwPid)
     return FALSE;
 }
 
-//获取EXE的模块基址.
+//获取进程信息.
+PSYSTEM_PROCESSES CProcessOpt::NtGetProcessInfo()
+{
+    if (m_NtQuerySytemInforMation != NULL)
+    {
+        SYSTEM_BASIC_INFORMATION sbi = { 0 };
+        NTSTATUS status = m_NtQuerySytemInforMation(SystemBasicInformation, (PVOID)&sbi, sizeof(sbi), NULL);
+        if (status != STATUS_SUCCESS)
+        {
+            return NULL;
+        }
+
+        DWORD dwNeedSize = 0;
+        BYTE *pBuffer = NULL;
+        
+        status = m_NtQuerySytemInforMation(SystemProcessesAndThreadsInformation, NULL, 0, &dwNeedSize);
+        if (status == STATUS_INFO_LENGTH_MISMATCH)
+        {
+            pBuffer = new BYTE[dwNeedSize];
+            status = m_NtQuerySytemInforMation(SystemProcessesAndThreadsInformation, (PVOID)pBuffer, dwNeedSize, NULL);
+            if (status == STATUS_SUCCESS)
+            {
+
+                return (PSYSTEM_PROCESSES)pBuffer;
+            }
+
+        }
+
+        return NULL;
+    }
+    return NULL;
+}
+
+    //获取EXE的模块基址.
 BOOL CProcessOpt::MdGetProcessOepModel(DWORD dwPid,BYTE **hModel, UBinSize &BaseSize)
 {
     int dwErrorCode = -3;
@@ -524,7 +557,7 @@ void CProcessOpt::InitFunctionTablePoint()
         static_cast<PfnNtSuspendAnResumeProcess>(MmGetAddress(TEXT("ntdll.dll"), "NtSuspendProcess"));
     m_PfnNtResumeProcess =
         static_cast<PfnNtSuspendAnResumeProcess>(MmGetAddress(TEXT("ntdll.dll"), "NtResumeProcess"));
-
+    m_NtQuerySytemInforMation = static_cast<NTQUERYSYSTEMINFORMATION>(MmGetAddress(TEXT("ntdll.dll"),"ZwQuerySystemInformation"));
     return;
 }
 //释放资源

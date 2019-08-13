@@ -74,6 +74,9 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
         }
         m_ZwCreateThreadEx(&hThreadHandle, PROCESS_ALL_ACCESS, NULL, hProcess, (LPTHREAD_START_ROUTINE)pFuncProcAddr, lpBuffer, 0, 0, 0, 0, NULL);
 
+        WaitForSingleObject(hTempProcess, 2000);
+       
+
         if (NULL == hThreadHandle)
 
         {
@@ -125,6 +128,7 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
 
         m_ZwCreateThreadEx(&hThreadHandle, PROCESS_ALL_ACCESS, NULL, hTempProcess, (LPTHREAD_START_ROUTINE)pFuncProcAddr, lpBuffer, 0, 0, 0, 0, NULL);
         //hThreadHandle = CreateRemoteThreadEx(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)LoadLibrary, lpBuffer, 0, 0, 0);
+        WaitForSingleObject(hTempProcess, 2000);
 
         if (NULL == hThreadHandle)
 

@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(IncludePath)</IncludePath>
+    <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);../../../ThreadManger\ShellCode\ShellCode</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>../../../;../../../ProcessManger\ProcessIterator;../../../ThreadManger\RemoteThread;$(VC_IncludePath);$(WindowsSDK_IncludePath);../../../ThreadManger\ShellCode\ShellCode</IncludePath>

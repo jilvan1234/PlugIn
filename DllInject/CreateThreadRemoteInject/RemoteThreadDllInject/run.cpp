@@ -48,37 +48,37 @@ int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ char** 
     
    
 
-//    CBinString str = argv[1];
-//#ifdef UNICODE
-//    dwPid = _wtoi(str.c_str());
-//#else
-//    dwPid = atoi(str.c_str());
-//#endif // UNICODE
+    CBinString str = argv[1];
+#ifdef UNICODE
+    dwPid = _wtoi(str.c_str());
+#else
+    dwPid = atoi(str.c_str());
+#endif // UNICODE
 //
 //    
 //    //dwPid = 508;
 //
-//     GetCurrentDirectory(1024 * sizeof(TCHAR), szPath);
-//     ::lstrcat(szPath, TEXT("\\Inject.dll"));
+     GetCurrentDirectory(1024 * sizeof(TCHAR), szPath);
+     ::lstrcat(szPath, TEXT("\\intercept.dll"));
 
-   
-    //CBinString path = argv[2];
+
+ 
     //tsRemote.RtsRemoteThreadLoadLibrary(NULL, dwPid, path.c_str());
 
-    dwPid = 11268;
+
    
     //tsRemote.RtsRemoteUnloadModule(dwPid, TEXT("Injec1t.dll"));
     //UCHAR ShellCode[] = "\xc3\xc3";
     //tsRemote.RtsRemoteThreadShellCode(NULL, dwPid, (LPVOID)ShellCodeFunction, (DWORD)ShellCodeFunction - (DWORD)End);
-    HWND hwnd = NULL;
-    hwnd = FindWindow(TEXT("ConsoleWindowClass"), TEXT("F:\\公司文档\\公司代码\\PlugIn\\TestCode\\Ring3TestCode\\x64\\Debug\\Ring3TestCode.exe"));
-    DWORD dwTid = GetWindowThreadProcessId(hwnd,&dwPid);
-    hProcess = opt.PsGetProcess(dwPid);
-    UCHAR ShellCode[] = "\xc3";
+ 
+     
+     
+    tsRemote.RtsRemoteThreadLoadLibrary(NULL, dwPid, szPath);
+   
    // tsRemote.RtsRemoteContextShellCode(hProcess,NULL ,dwTid , (LPVOID)ShellCode, 100);
    //dwPid =  NtUserQueryWindow(hwnd,0);
    //dwTid =  NtUserQueryWindow(hwnd,2);
-    tsRemote.RtsRemoteContextDll(hProcess, NULL, dwTid, TEXT("D:\\123.dll"));
+   // tsRemote.RtsRemoteContextDll(hProcess, NULL, dwTid, TEXT("D:\\123.dll")); //未完成
     CloseHandle(hProcess);
     system("pause");
 }

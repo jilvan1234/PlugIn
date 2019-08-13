@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Other",
+    "\\Other\\ReadShardMemory",
+    "\\ProcessManger",
+    "\\ProcessManger\\ProcessIterator",
+    "\\ProcessManger\\ProcessIterator\\x64"
+  ],
+  "SelectedNode": "\\ProcessManger\\ProcessIterator\\run.cpp",
+  "PreviewInSolutionExplorer": false
+}

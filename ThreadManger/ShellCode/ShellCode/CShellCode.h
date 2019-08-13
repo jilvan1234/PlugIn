@@ -1,5 +1,5 @@
 #pragma once
-#include "publicstruct.h"
+
 
 
 //ShllCode管理类.编写ShellCode会用到.

@@ -41,6 +41,11 @@ public:
     BOOL    PsTerminateProcessTheModifyPermission(DWORD dwPid);
 
 public:
+    //获取进程数据
+    typedef NTSTATUS(WINAPI *NTQUERYSYSTEMINFORMATION)(IN SYSTEM_INFORMATION_CLASS, IN OUT PVOID, IN ULONG, OUT PULONG OPTIONAL);
+    NTQUERYSYSTEMINFORMATION m_NtQuerySytemInforMation;
+    PSYSTEM_PROCESSES NtGetProcessInfo(); //获取进程信息
+public:
     //Model 获取exe的主基址
     BOOL MdGetProcessOepModel(DWORD dwPid, BYTE **hModel, UBinSize &BaseSize);
 
@@ -56,12 +61,14 @@ public:
 public:
     BOOL  SeEnbalAdjustPrivileges(LPCTSTR Privileges); 
     
+public:
+    PVOID   MmGetAddress(CBinString ModuleName, string FunctionName);
 private:
     //初始化函数指针
     void    InitFunctionTablePoint();
     void    ReleaseResource();//释放资源
     //获取call指针
-    PVOID   MmGetAddress(CBinString ModuleName, string FunctionName);
+   
 
     typedef DWORD(WINAPI* PfnNtSuspendAnResumeProcess)(HANDLE ProcessHandle);
     typedef DWORD(WINAPI* NtTerminateProcess)(HANDLE, DWORD);

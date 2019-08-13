@@ -23,10 +23,10 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pRegPath)
    
     Pass(pDriverObj);
  
-    AllocateOptMem();
+   // AllocateOptMem();
    // UnAllocateOptMem();
-    SetProTerminate(TRUE);
-    SetProImageName("calc");
+    //SetProTerminate(TRUE);
+   // SetProImageName("calc");
     InstallObjectProtecteHOOk();
 	return STATUS_SUCCESS;
 }

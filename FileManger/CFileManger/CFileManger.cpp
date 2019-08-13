@@ -77,3 +77,9 @@ BOOL CFileManger::FsCreateDirector(CBinString fsDirName, LPSECURITY_ATTRIBUTES l
     return CreateDirectory(fsDirName.c_str(), lpSecurityAttributes);
     
 }
+
+BOOL CFileManger::FsRemoveDirector(CBinString fsDirName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+
+    return RemoveDirectory(fsDirName.c_str());
+}

@@ -11,6 +11,7 @@ int main()
     {
         OutputDebugString("1111111111111111111111111111\r\n");
         OutputDebugString("1111111111111111111111111111\r\n");
+        system("pause");
         return 0;
     }
     HANDLE hProcess = 0;
@@ -23,7 +24,7 @@ int main()
         hProcess = PsOpt.PsGetProcess(i);
         if (hProcess != 0)
         {
-            dwErrorCode =  DuplicateHandle(GetCurrentProcess(),hMutex1 , hProcess, &hTarProcess, 0, 0, DUPLICATE_SAME_ACCESS);
+            dwErrorCode = DuplicateHandle(GetCurrentProcess(), hMutex1, hProcess, &hTarProcess, 0, 0, DUPLICATE_SAME_ACCESS);
             if (dwErrorCode != 0)
             {
                 CloseHandle(hProcess);
@@ -33,13 +34,13 @@ int main()
             continue;
         }
     }
+
     
-    
-    //while (true)
-    //{
-    //    Sleep(180000); // 延迟三分钟.
-    //    return 0;
-    //}
+    while (true)
+    {
+        Sleep(180000); // 延迟三分钟.
+        return 0;
+    }
     return 0;
 
 }
