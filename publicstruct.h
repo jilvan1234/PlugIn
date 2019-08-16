@@ -25,6 +25,8 @@ typedef LONG NTSTATUS;
 #define STATUS_INVALID_INFO_CLASS       ((NTSTATUS)0xC0000003L)   
 #define STATUS_INFO_LENGTH_MISMATCH     ((NTSTATUS)0xC0000004L)   
 
+#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+//ZwQuerySystemInformation 需要用到的信息
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
     SystemBasicInformation,                    //  0 Y N   
@@ -84,6 +86,29 @@ typedef enum _SYSTEM_INFORMATION_CLASS
 
 } SYSTEM_INFORMATION_CLASS;
 
+
+//ZwQuerySystemInformation 遍历系统所有句柄的句柄信息
+
+//句柄的详细信息
+typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
+{
+    USHORT UniqueProcessId;
+    USHORT CreatorBackTraceIndex;
+    UCHAR ObjectTypeIndex;
+    UCHAR HandleAttributes;
+    USHORT HandleValue;
+    PVOID Object;
+    ULONG GrantedAccess;
+} SYSTEM_HANDLE_TABLE_ENTRY_INFO, *PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
+
+//全局句柄记录的个数
+typedef struct _SYSTEM_HANDLE_INFORMATION
+{
+    ULONG NumberOfHandles;
+    SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
+} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
+
+//********
 typedef struct _LSA_UNICODE_STRING
 {
     USHORT Length;
@@ -312,24 +337,6 @@ typedef enum _PROCESSINFOCLASS {
 } PROCESSINFOCLASS;
 
 
-//句柄相关信息获取
-
-typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
-{
-    USHORT UniqueProcessId;
-    USHORT CreatorBackTraceIndex;
-    UCHAR ObjectTypeIndex;
-    UCHAR HandleAttributes;
-    USHORT HandleValue;
-    PVOID Object;
-    ULONG GrantedAccess;
-} SYSTEM_HANDLE_TABLE_ENTRY_INFO, *PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
-
-typedef struct _SYSTEM_HANDLE_INFORMATION
-{
-    ULONG NumberOfHandles;
-    SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
-} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
 
 
 //ZwQueryinfromation信息
@@ -472,6 +479,7 @@ typedef NTSTATUS(WINAPI * PfnZwQuerySystemInformation)(
 
 typedef enum _OBJECT_INFORMATION_CLASS {
     ObjectBasicInformation = 0,  //如果为1表示获取名字信息
+    ObjectFileInformation = 1,
     ObjectTypeInformation = 2    //表示获取类型信息
 } OBJECT_INFORMATION_CLASS;
 
@@ -492,7 +500,10 @@ typedef struct _PUBLIC_OBJECT_BASIC_INFORMATION {
     ULONG       PointerCount;
     ULONG       Reserved[10];
 } PUBLIC_OBJECT_BASIC_INFORMATION, *PPUBLIC_OBJECT_BASIC_INFORMATION;
-
+//查询句柄信息.
+typedef struct _OBJECT_NAME_INformATION {
+    UNICODE_STRING Name;
+} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
 
 //遍历文件需要的信息
 
@@ -544,4 +555,6 @@ typedef NTSTATUS(WINAPI* PfnZwQueryInformationProcess)(
     _In_      ULONG            ProcessInformationLength,
     _Out_opt_ PULONG           ReturnLength
     );
+
+
 

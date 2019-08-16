@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,9 +60,10 @@ int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ char** 
 //    //dwPid = 508;
 //
      GetCurrentDirectory(1024 * sizeof(TCHAR), szPath);
-     ::lstrcat(szPath, TEXT("\\intercept.dll"));
+     ::lstrcat(szPath, TEXT("\\"));
 
-
+     CBinString strPatn = szPath;
+     strPatn += argv[2];
  
     //tsRemote.RtsRemoteThreadLoadLibrary(NULL, dwPid, path.c_str());
 
@@ -73,7 +75,7 @@ int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ char** 
  
      
      
-    tsRemote.RtsRemoteThreadLoadLibrary(NULL, dwPid, szPath);
+    tsRemote.RtsRemoteThreadLoadLibrary(NULL, dwPid, strPatn.c_str());
    
    // tsRemote.RtsRemoteContextShellCode(hProcess,NULL ,dwTid , (LPVOID)ShellCode, 100);
    //dwPid =  NtUserQueryWindow(hwnd,0);

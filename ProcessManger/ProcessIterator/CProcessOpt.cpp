@@ -1,3 +1,4 @@
+
 #include "CProcessOpt.h"
 #include <TlHelp32.h>
 
@@ -308,15 +309,24 @@ DWORD CProcessOpt::PsGetProcessIdByProcessFileName(CBinString ProcessImageFileNa
     {
         dwErrCode = GetLastError();
         CloseHandle(hSnapshot);
-        return NULL;
+        return 0;
     }
 
     PROCESSENTRY32 pi = { 0 };
     pi.dwSize = sizeof(PROCESSENTRY32); //第一次使用必须初始化成员
     bRet = Process32First(hSnapshot, &pi);
+    CBinString TempString = TEXT("");
+    //
+
+
+    transform(TempString.begin(), TempString.end(), TempString.begin(), ::toupper);
+    transform(ProcessImageFileName.begin(), ProcessImageFileName.end(), ProcessImageFileName.begin(), ::toupper);
     while (bRet)
     {
-        if (ProcessImageFileName.compare(pi.szExeFile) == 0)
+        TempString = pi.szExeFile;
+        transform(TempString.begin(), TempString.end(), TempString.begin(), ::toupper);
+
+        if (ProcessImageFileName.compare(TempString) == 0)
         {
             dwPid = pi.th32ProcessID;
             CloseHandle(hSnapshot);
@@ -558,6 +568,9 @@ void CProcessOpt::InitFunctionTablePoint()
     m_PfnNtResumeProcess =
         static_cast<PfnNtSuspendAnResumeProcess>(MmGetAddress(TEXT("ntdll.dll"), "NtResumeProcess"));
     m_NtQuerySytemInforMation = static_cast<NTQUERYSYSTEMINFORMATION>(MmGetAddress(TEXT("ntdll.dll"),"ZwQuerySystemInformation"));
+    m_NtQueryObject = static_cast<PfnZwQueryObject>(MmGetAddress(TEXT("ntdll.dll"),"NtQueryObject"));
+    
+   
     return;
 }
 //释放资源
@@ -572,6 +585,134 @@ void CProcessOpt::ReleaseResource()
     if (NULL != m_PfnNtResumeProcess)
         m_PfnNtResumeProcess = NULL;
 }
+BOOL CProcessOpt::HndDuplicateHandle(
+    HANDLE hSourceProcessHandle,
+    HANDLE hSourceHandle,
+    HANDLE hTargetProcessHandle, 
+    LPHANDLE lpTargetHandle,
+    DWORD dwDesiredAccess, 
+    BOOL bInheritHandle, 
+    DWORD dwOptions)
+{
+    return DuplicateHandle(
+        hSourceProcessHandle,
+        hSourceHandle,
+        hTargetProcessHandle,
+        lpTargetHandle,
+        dwDesiredAccess,
+        bInheritHandle,
+        dwOptions);
+}
+//获取句柄的详细信息.
+PVOID CProcessOpt::HndRetSystemHandleInformation()
+{
+    //返回系统句柄信息.
+    PULONG szBuffer = NULL;
+    DWORD dwSize = 0x1000;
+    DWORD dwRetSize = 0;
+    NTSTATUS ntStatus;
+    szBuffer = new ULONG[dwSize];
+    if (NULL == szBuffer)
+        return NULL;
+    if (NULL == m_NtQuerySytemInforMation)
+        return NULL;
+    //第一遍调用可能不成功.所以获取返回值. 并且根据DwRetSize的值去重新申请空间
+    do
+    {
+        ntStatus = m_NtQuerySytemInforMation(SystemHandleInformation, szBuffer, dwSize, &dwRetSize);
+        if (ntStatus == STATUS_INFO_LENGTH_MISMATCH) //代表空间不足.重新申请空间
+        {
+
+            delete[] szBuffer;
+            szBuffer = new ULONG[dwSize *= 2];
+
+        }
+        else
+        {
+            if (!NT_SUCCESS(ntStatus))
+            {
+                delete[] szBuffer;
+                return NULL;
+            }
+        }
+    } while (ntStatus == STATUS_INFO_LENGTH_MISMATCH);
+
+    //成功返回信息
+    return szBuffer;
+}
+
+USHORT CProcessOpt::HndGetHandleTypeWithTypeName(CBinString TypeName)
+{
+    /*
+
+    1.根据参数创建各种对象
+    2.遍历自己进程句柄
+    3.得出进程的Typeid
+    */
+  
+    CBinString CompareTypeName = TEXT("");
+    transform(TypeName.begin(), TypeName.end(), TypeName.begin(), ::toupper); //转化为大写进行获取.
+    CompareTypeName = TEXT("FILE");
+    if (TypeName == CompareTypeName)
+    {
+        //创建文件对象.遍历全局句柄表.得出信息.
+        TCHAR szPath[MAX_PATH] = { 0 };
+        GetModuleFileName(NULL, szPath, MAX_PATH);
+        HANDLE hFile = CreateFile(szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
+        if (hFile == INVALID_HANDLE_VALUE)
+            return 0;
+        //遍历全局句柄表.得出信息.
+        PVOID pBuffer = NULL;
+        DWORD dwHandCount = 0;
+        PSYSTEM_HANDLE_INFORMATION pGlobalHandleInfo = NULL;
+        SYSTEM_HANDLE_TABLE_ENTRY_INFO HandleInformation = { 0 };
+        pBuffer = HndRetSystemHandleInformation();
+        if (pBuffer == NULL)
+        {
+            CloseHandle(hFile);
+            return 0;
+        }
+        pGlobalHandleInfo = reinterpret_cast<PSYSTEM_HANDLE_INFORMATION>(pBuffer);
+        if (NULL == pGlobalHandleInfo)
+        {
+            CloseHandle(hFile);
+            return NULL;
+        }
+        dwHandCount = pGlobalHandleInfo->NumberOfHandles;
+        for (int i = 0; i < dwHandCount; i++)
+        {
+            HandleInformation = pGlobalHandleInfo->Handles[i];
+            if (HandleInformation.HandleValue == (USHORT) hFile && GetCurrentProcessId() == HandleInformation.UniqueProcessId)
+            {
+                CloseHandle(hFile);
+                return HandleInformation.ObjectTypeIndex; //返回其索引.
+            }
+        }
+        CloseHandle(hFile);
+    }
+    return 0;
+}
+
+USHORT CProcessOpt::HndGetHandleTypeWithHandle(HANDLE handle)
+{
+    if (INVALID_HANDLE_VALUE == handle || 0 == handle)
+        return 0;
+    if (NULL == m_NtQueryObject)
+        return 0;
+
+
+    char * pBuffer = new char[0x300];
+    ULONG uRetSize = 0;
+    OBJECT_INFORMATION_CLASS ob = ObjectTypeInformation;
+    m_NtQueryObject(handle, ob, pBuffer, 0x300, &uRetSize);
+    USHORT Type = 0;
+    PPUBLIC_OBJECT_TYPE_INFORMATION PtypeInfo = reinterpret_cast<PPUBLIC_OBJECT_TYPE_INFORMATION>(pBuffer);  //查询类型信息
+    Type = PtypeInfo->MaintainTypeList;
+    delete[] pBuffer;
+    return Type;
+}
+
+
 //对GetProcess以及Loadlibrary的封装.
 PVOID CProcessOpt::MmGetAddress(CBinString ModuleName, string FunctionName)
 {

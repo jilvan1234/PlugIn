@@ -54,38 +54,50 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
 
     if (hProcess != NULL)
     {
-        lpBuffer = VirtualAllocEx(hProcess, 0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-        if (NULL == lpBuffer)
-            return FALSE;
+       ;
+        hTempProcess = hProcess;
 
-        dwRetErrorCode = WriteProcessMemory(hProcess, lpBuffer, lpLoadLibraryName, 1024 * sizeof(TCHAR), &dwWriteBytes);
+        if (NULL == hTempProcess)
+        {
+            
+            return FALSE;
+        }
+        lpBuffer = VirtualAllocEx(hTempProcess, 0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        if (NULL == lpBuffer)
+        {
+            
+            return FALSE;
+        }
+
+        dwRetErrorCode = WriteProcessMemory(hTempProcess, lpBuffer, lpLoadLibraryName, 1024 * sizeof(TCHAR), &dwWriteBytes);
         if (0 == dwRetErrorCode)
         {
             if (NULL != lpBuffer)
-                VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
+                VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
+        
             return FALSE;
         }
 
         if (NULL == m_ZwCreateThreadEx)
         {
             if (NULL != lpBuffer)
-                VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
+                VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
             return FALSE;
         }
-        m_ZwCreateThreadEx(&hThreadHandle, PROCESS_ALL_ACCESS, NULL, hProcess, (LPTHREAD_START_ROUTINE)pFuncProcAddr, lpBuffer, 0, 0, 0, 0, NULL);
 
+        m_ZwCreateThreadEx(&hThreadHandle, PROCESS_ALL_ACCESS, NULL, hTempProcess, (LPTHREAD_START_ROUTINE)pFuncProcAddr, lpBuffer, 0, 0, 0, 0, NULL);
+        //hThreadHandle = CreateRemoteThreadEx(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)LoadLibrary, lpBuffer, 0, 0, 0);
         WaitForSingleObject(hTempProcess, 2000);
-       
 
         if (NULL == hThreadHandle)
 
         {
             if (NULL != lpBuffer)
-                VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
+                VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
             return FALSE;
         }
         if (NULL != lpBuffer)
-            VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
+            VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
         return TRUE;
 
     }
@@ -120,9 +132,9 @@ BOOL CRemoteThread::RtsRemoteThreadLoadLibrary(HANDLE hProcess,DWORD dwPid,LPCTS
          if (NULL == m_ZwCreateThreadEx)
          {
              if (NULL != lpBuffer)
-                 VirtualFreeEx(hProcess, lpBuffer, 0, MEM_RELEASE);
-             if (NULL != hProcess)
-                 CloseHandle(hProcess);
+                 VirtualFreeEx(hTempProcess, lpBuffer, 0, MEM_RELEASE);
+             if (NULL != hTempProcess)
+                 CloseHandle(hTempProcess);
              return FALSE;
          }
 

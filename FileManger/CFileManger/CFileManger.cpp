@@ -13,7 +13,7 @@ CFileManger::~CFileManger()
 }
 
 //传入文件名获取文件句柄
-HANDLE CFileManger::FsGetFileHandle(CBinString fsFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+HANDLE CFileManger::FsCreateFile(CBinString fsFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
   
     m_CurFileName = fsFileName;

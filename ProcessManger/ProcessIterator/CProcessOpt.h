@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <vector>
 #include <string>
-#include "publicstruct.h"
+#include "../../publicstruct.h"
 #include <algorithm>  //tranfrom 字符串转大小写需要用到.
 
 using namespace std;
@@ -60,7 +60,37 @@ public:
     //权限相关  设置一个应用的 DACL ACL 删除ACL
 public:
     BOOL  SeEnbalAdjustPrivileges(LPCTSTR Privileges); 
-    
+
+public:
+    //句柄相关
+    //DuplicateHandle(GetCurrentProcess(), handle, hProcess, &hProcessTag, 0, FALSE, DUPLICATE_SAME_ACCESS);
+    //句柄拷贝
+    BOOL HndDuplicateHandle(
+            _In_ HANDLE hSourceProcessHandle,
+            _In_ HANDLE hSourceHandle,
+            _In_ HANDLE hTargetProcessHandle,
+            _Outptr_ LPHANDLE lpTargetHandle,
+            _In_ DWORD dwDesiredAccess = 0,
+            _In_ BOOL bInheritHandle = FALSE,
+            _In_ DWORD dwOptions = DUPLICATE_SAME_ACCESS
+        );
+
+    //获取句柄的全局信息
+
+    PfnZwQuerySystemInformation ZwQuerySystemInformation;
+    PVOID HndRetSystemHandleInformation();
+   
+    //获取句柄类型.
+    /*
+    根据名字获取
+    1.File
+    2.Event
+    3.reg... 
+    */
+    USHORT HndGetHandleTypeWithTypeName(CBinString TypeName);
+    USHORT HndGetHandleTypeWithHandle(HANDLE handle); //根据Handle来获取句柄的类型
+
+    PfnZwQueryObject m_NtQueryObject;               //函数NtQueryObject
 public:
     PVOID   MmGetAddress(CBinString ModuleName, string FunctionName);
 private:

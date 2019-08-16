@@ -51,6 +51,7 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -117,6 +118,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -124,9 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp" />
     <ClCompile Include="run.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -134,10 +139,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="bin3.bin" />
-    <None Include="Resource\2019730_FOR_218.exe" />
-    <None Include="Resource\CREATE_SERVICE.exe" />
-    <None Include="Resource\HANDLE_OCCFILE.exe" />
-    <None Include="Resource\RWB.exe" />
+    <None Include="Resource\CreateAnStartServices.exe" />
+    <None Include="Resource\IN_IELOCKLOADER.exe" />
+    <None Include="Resource\KILL_IELOCKl.dll" />
     <None Include="Resource\SystemServices.exe" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

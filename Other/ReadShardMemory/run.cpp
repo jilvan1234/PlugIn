@@ -14,10 +14,22 @@
 #include <math.h>
 #include <publicstruct.h>
 #include <Psapi.h>
+#include "run.h"
+#include <TlHelp32.h>
+
 CProcessOpt g_PsOpt;
 
+USHORT g_dwType = 0;
+
+typedef struct _PATH_HANDLE
+{
+    HANDLE hTarHandle;
+    CBinString DirPath;
+
+}PATH_HANDLE, *PPATH_HANDLE;
 
 
+int MmGetSectionMemoryAnWriteFile(const HANDLE &hProcess, DWORD dwPid,CBinString Path);
 
 //遍历进程下的模块信息需要用到.
 PfnZwQueryInformationProcess ZwQueryInformationProcess = reinterpret_cast<PfnZwQueryInformationProcess>(g_PsOpt.MmGetAddress(TEXT("ntdll.dll"), "ZwQueryInformationProcess"));
@@ -33,6 +45,7 @@ CBinString SplicingPathFileName(CBinString DirPath, CProcessOpt &PsOpt, DWORD dw
 {
     CBinString PathName = TEXT("");
     CBinString PmProtect = TEXT("");
+    DirPath = DirPath + TEXT("\\");
     PathName = DirPath;
 
     PathName = PathName + PsOpt.PsGetProcessFileNameByProcessId(dwPid);
@@ -49,7 +62,7 @@ CBinString SplicingPathFileName(CBinString DirPath, CProcessOpt &PsOpt, DWORD dw
     //地址转为16进制.
     TCHAR HexBuffer[0x100] = { 0 };
 #ifdef UNICODE
-    wsprintf(HexBuffer, TEXT("%P"), pMemInfo->BaseAddress);
+    wsprintf(HexBuffer, TEXT("%p"), pMemInfo->BaseAddress);
 #else
     sprintf_s(HexBuffer, 0x100, "%p", pMemInfo->BaseAddress);
 #endif
@@ -74,8 +87,6 @@ CBinString SplicingPathFileName(CBinString DirPath, CProcessOpt &PsOpt, DWORD dw
     }
 
     PathName += PmProtect;
-    PathName += TEXT("_");
-    PathName += TEXT("Handle");
     PathName += TEXT(".bin");
     return CBinString(PathName);
 }
@@ -91,11 +102,15 @@ CBinString CreateDirPathName(DWORD dwPid)
 
 #ifdef UNICODE
     DirPath += std::to_wstring(dwPid);
+    DirPath += TEXT("_");
+    DirPath += PsOpt.PsGetProcessFileNameByProcessId(dwPid);
 
 #else
     DirPath += std::to_string(dwPid);
+    DirPath += TEXT("_");
+    DirPath += PsOpt.PsGetProcessFileNameByProcessId(dwPid);
 #endif // UNICODE
-
+    DirPath = DirPath.substr(0, DirPath.find_last_of(TEXT(".")));
     FsOpt.FsCreateDirector(DirPath);
     DirPath += TEXT("\\");	
     return CBinString(DirPath);
@@ -150,96 +165,168 @@ BOOL WriteListHead(HANDLE hFile ,PMEMORY_BASIC_INFORMATION pMemInfo)
 }
 
 //根据Handle获取文件类型.
+HANDLE g_GetFileNmaeEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
+HANDLE g_WriteMemoryHandleInforEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
+
 DWORD  WINAPI GetFileName(LPVOID lParam )
 {
 
+    //事件同步.
+    WaitForSingleObject(g_GetFileNmaeEvent, INFINITE);
 
 
-    HANDLE handle = (HANDLE)lParam;
-    CFileManger fsOpt;
-    IO_STATUS_BLOCK iostu;
-    wstring StrName;
-    TCHAR PathBuffer[0x200];
-    memset(PathBuffer, 0, 0x200);
-    char *pBuffer = new char[0x256]();
+
+
  
-    ZwQueryInformationFile((HANDLE)handle, &iostu, pBuffer, 0x256, RFILE_INFORMATION_CLASS::FileNameInformation);
-    PFILE_NAME_INFORMATION pFileInfo = reinterpret_cast<PFILE_NAME_INFORMATION>(pBuffer);
-    
-    
-    memcpy(PathBuffer, pFileInfo->FileName, pFileInfo->FileNameLength);
-    StrName = PathBuffer;
-    printf("句柄对应路径 = %ws \r\n", pFileInfo->FileName);
-    
-    //delete[] pBuffer;
+    CFileManger fsOpt;
+    PPATH_HANDLE PtahHandleInfor = (PPATH_HANDLE)lParam;
+    HANDLE hFile = INVALID_HANDLE_VALUE;
+    ULONG uRetLength = 0;
+    OBJECT_INFORMATION_CLASS ob = ObjectFileInformation;
+    char * Buffer = new char[0x100];
+    memset(Buffer, 0, 0x100);
+    g_NtQueryObject(PtahHandleInfor->hTarHandle, ob, Buffer, 0x100, &uRetLength);
+    POBJECT_NAME_INFORMATION pFileInfo = reinterpret_cast<POBJECT_NAME_INFORMATION>(Buffer);
+    TCHAR szBuffer[0x256] = { 0 };
+    memcpy(szBuffer, pFileInfo->Name.Buffer, pFileInfo->Name.MaximumLength);
+  
 
+ 
+  
+    CBinString TempDirPath = PtahHandleInfor->DirPath;
+    TempDirPath  += TEXT("GlobalHandleName.txt");
+    hFile = fsOpt.FsCreateFile(TempDirPath.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, NULL, NULL);
+    SetFilePointer(hFile, 0, 0, FILE_END);
+    DWORD dwWriteBytes = 0;
+    DWORD dwSize = ::lstrlen(szBuffer);
+    WriteFile(hFile, pFileInfo->Name.Buffer, pFileInfo->Name.Length, &dwWriteBytes, NULL);
+    ////str.substr(2,str.find_first_of(TEXT("\\")));
+   
+    //CloseHandle(hFile);
+    delete[] Buffer;
+    SetEvent(g_GetFileNmaeEvent);
     return NULL;
 }
+
+
+
+ BOOL  WriteMemoryHandleInfor(HANDLE  hProcess,CBinString DirPath)
+{
+
+     CProcessOpt PsOpt;
+    DWORD handlecount;
+    ZwQueryInformationProcess(hProcess, ProcessHandleCount, &handlecount, sizeof(handlecount), NULL); //hc == 句柄个数
+    HANDLE hTarHandle;
+  
+
+    PATH_HANDLE pathHandleInfo = { 0 };
+  
+
+    for (DWORD64 i = 0; i < 400000; i += 4)
+    {
+
+        if (1 == DuplicateHandle(hProcess, (HANDLE)i, GetCurrentProcess(), &hTarHandle, 0, 0, DUPLICATE_SAME_ACCESS))
+        {
+            //使用NtQueryObject遍历这个句柄信息
+
+            //传入句柄类型的值.获取对应的名字
+
+                //开线程,读取.会阻塞.
+
+            ULONG uRetLength = 0;
+            char * Buffer = new char[0X400]();
+            OBJECT_INFORMATION_CLASS ob = ObjectTypeInformation;
+            g_NtQueryObject(hTarHandle, ob, Buffer, 0x100, &uRetLength);
+            PPUBLIC_OBJECT_TYPE_INFORMATION pBuffer = reinterpret_cast<PPUBLIC_OBJECT_TYPE_INFORMATION>(Buffer);  //查询类型信息
+            //printf("句柄名字为: %ws       句柄类型为: %d  ", pBuffer->TypeName.Buffer, pBuffer->MaintainTypeList);
+
+            if (pBuffer->MaintainTypeList == g_dwType)
+            {
+                
+                pathHandleInfo.hTarHandle = hTarHandle;
+                pathHandleInfo.DirPath = DirPath;
+                HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GetFileName, &pathHandleInfo, 0, 0);
+                //GetFileName(pBuffer->MaintainTypeList,(HANDLE)hTarHandle);
+
+                WaitForSingleObject(hThread, 500);
+            }
+
+        }
+
+    }
+  
+    return 0;
+}
+
 int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ _TCHAR** envp)
 {
     CProcessOpt PsOpt;
     CFileManger FsOpt;
     PsOpt.SeEnbalAdjustPrivileges(SE_DEBUG_NAME);
     HANDLE hProcess = NULL;
-    PMEMORY_BASIC_INFORMATION pMemInfo = new MEMORY_BASIC_INFORMATION();
     SIZE_T dwErrorCode = 0;
-    SIZE_T AddressHex = 0;
-   
-    DWORD dwPid = 1288;
     PSYSTEM_PROCESSES psp = NULL;
-    CBinString PathName = TEXT("");
     CBinString DirPath = TEXT("");
 
-    PVOID handlecount;
-    DWORD64 handle = 0;
-  
-    DirPath = CreateDirPathName(dwPid);
+    HANDLE hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 0x1000, TEXT("MyType"));
+    g_dwType = PsOpt.HndGetHandleTypeWithHandle(hFileMapping);
+    CloseHandle(hFileMapping);
 
-    hProcess = PsOpt.PsGetProcess(dwPid); // 根据PROCESS 读取.
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    DWORD dwErrCode = 0;
+    BOOL bRet = FALSE;
 
-    PsOpt.PsSusPendProcess(dwPid);//挂起
-    
-    ZwQueryInformationProcess(hProcess, ProcessHandleCount, &handlecount, sizeof(handlecount), NULL); //hc == 句柄个数
-    HANDLE hTarHandle;
-    for (DWORD64 i = 0; i < 400000; i+=4)
+    if (INVALID_HANDLE_VALUE == hSnapshot)
     {
-
-        if (1 == DuplicateHandle(hProcess, (HANDLE)i, GetCurrentProcess(), &hTarHandle, 0, 0, DUPLICATE_SAME_ACCESS))
-        {
-            //使用NtQueryObject遍历这个句柄信息
-            ULONG uRetLength = 0;
-            char * Buffer = new char[0x100]();
-            OBJECT_INFORMATION_CLASS ob = ObjectTypeInformation;
-            g_NtQueryObject(hTarHandle, ob, Buffer, 0x100, &uRetLength);
-            PPUBLIC_OBJECT_TYPE_INFORMATION pBuffer = reinterpret_cast<PPUBLIC_OBJECT_TYPE_INFORMATION>(Buffer);  //查询类型信息
-            printf("句柄名字为: %ws \t      句柄类型为: %d \t \r\n", pBuffer->TypeName.Buffer, pBuffer->MaintainTypeList);
-            ////传入句柄类型的值.获取对应的名字
-            //if (pBuffer->MaintainTypeList == 36)
-            //{
-
-            //    //开线程,读取.会阻塞.
-            //
-            //    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GetFileName,hTarHandle, 0, 0);
-            //    //GetFileName(pBuffer->MaintainTypeList,(HANDLE)hTarHandle);
-            //    WaitForSingleObject(hThread, 1000);
-            // 
-            //    continue;
-            //}
-          
-
-       }
-       
-          
-            
-            
-
-            int a = 10;
-         
+        dwErrCode = GetLastError();
+        CloseHandle(hSnapshot);
+        return NULL;
     }
 
+    PROCESSENTRY32 pi = { 0 };
+    pi.dwSize = sizeof(PROCESSENTRY32); //第一次使用必须初始化成员
+    bRet = Process32First(hSnapshot, &pi);
+    while (bRet)
+    {
+       
+        hProcess = PsOpt.PsGetProcess(pi.th32ProcessID); // 根据PROCESS 读取.
+        if (0 == hProcess)
+        {
+            bRet = Process32Next(hSnapshot, &pi);
+            continue;
+        }
+      /*  if (pi.th32ProcessID != 2708)
+        {
+            bRet = Process32Next(hSnapshot, &pi);
+            continue;   //测试的PID
+        }*/
+        DirPath = CreateDirPathName(pi.th32ProcessID);
+       // HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)WriteMemoryHandleInfor, hProcess, 0, 0);
+        WriteMemoryHandleInfor(hProcess,DirPath);
+       // WaitForSingleObject(hThread, 300);
+        //WriteMemoryHandleInfor(hProcess);
+        //遍历此进程下的所有内存.写入到文件
+       MmGetSectionMemoryAnWriteFile(hProcess, pi.th32ProcessID, DirPath);
+        bRet = Process32Next(hSnapshot, &pi);
+    }
+    CloseHandle(hSnapshot);
+  
     system("pause");
     return 0;
-    dwErrorCode  = VirtualQueryEx(hProcess, 0, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
+}
+
+int MmGetSectionMemoryAnWriteFile( const HANDLE &hProcess,DWORD dwPid,CBinString DirPath)
+{
+    
+    DWORD dwErrorCode;
+    CProcessOpt PsOpt;
+    CFileManger FsOpt;
+    CBinString PathName = TEXT("");
+    bool retflag = true;
+   
+    FsOpt.FsCreateDirector(DirPath);
+    PMEMORY_BASIC_INFORMATION pMemInfo = new MEMORY_BASIC_INFORMATION();
+    dwErrorCode = VirtualQueryEx(hProcess, 0, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if (0 == dwErrorCode)
         return 0;
 
@@ -260,14 +347,13 @@ int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ _TCHAR*
             if (pMemInfo->Type == MEM_MAPPED)
             {
                 SIZE_T dwReadBytes = 0;
-                printf("ImageBase = %p Type = 0x%0x staus = 0x%x Protect = 0x%0x \r\n", pMemInfo->BaseAddress, pMemInfo->Type, pMemInfo->State, pMemInfo->Protect);
                 char *szBuffer = new char[pMemInfo->State]();
                 ReadProcessMemory(hProcess, pMemInfo->BaseAddress, szBuffer, pMemInfo->State, &dwReadBytes);
 
                 PathName = SplicingPathFileName(DirPath, PsOpt, dwPid, pMemInfo);
 
 
-                HANDLE hFile = FsOpt.FsGetFileHandle(PathName.c_str(), GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ | FILE_SHARE_WRITE,0, CREATE_ALWAYS,NULL,0);
+                HANDLE hFile = FsOpt.FsCreateFile(PathName.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, CREATE_ALWAYS, NULL, 0);
                 if (INVALID_HANDLE_VALUE == hFile)
                 {
                     delete[] szBuffer;
@@ -276,32 +362,139 @@ int _tmain(_In_ int argc, _In_reads_(argc) _Pre_z_ _TCHAR** argv, _In_z_ _TCHAR*
                 FsOpt.FsSetFilePoint(hFile, 0, 0, FILE_END);
 
                 /*
-                
+
                 写入内存type
                 写入内存state.
                 写入内存protect
                 写入内存OldProtect
                 写入表头
                 */
-                WriteListHead(hFile,pMemInfo);
+                WriteListHead(hFile, pMemInfo);
 
                 DWORD dwWriteBytes;
                 SetFilePointer(hFile, 0, 0, FILE_END);
                 WriteFile(hFile, szBuffer, pMemInfo->State, &dwWriteBytes, NULL);
                 CloseHandle(hFile);
                 delete[] szBuffer;
-                
+
             }
         }
         continue;
 
     }
-
-
-   
-
-    CloseHandle(hProcess);
-        
-    system("pause");
-    return 0;
+    retflag = false;
+    return {};
 }
+
+/*
+
+ DWORD dwGlobalHandleCount = 0;
+    SYSTEM_HANDLE_TABLE_ENTRY_INFO HandleInfo;
+    PSYSTEM_HANDLE_INFORMATION pGlobalHandle = NULL;
+    USHORT dwType = 0;
+    pGlobalHandle = reinterpret_cast<PSYSTEM_HANDLE_INFORMATION>(PsOpt.HndRetSystemHandleInformation());
+    if (NULL == pGlobalHandle)
+    {
+        return 0;
+    }
+    HANDLE hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 0x1000, TEXT("MyType"));
+    dwGlobalHandleCount = pGlobalHandle->NumberOfHandles;
+    dwType = PsOpt.HndGetHandleTypeWithHandle(hFileMapping);
+    CloseHandle(hFileMapping);
+    for (int i = 0; i < dwGlobalHandleCount; i++)
+    {
+        HandleInfo = pGlobalHandle->Handles[i];
+        //得到句柄类型信息.
+
+        if (dwType == 0)
+        {
+            CloseHandle(hFileMapping);
+            return 0;
+        }
+
+        if (dwType == (USHORT)HandleInfo.ObjectTypeIndex)
+        {
+            //是共享内存.打开句柄,遍历内存信息.并且NtQuery进行寻找.
+
+            //hProcess = PsOpt.PsGetProcess(HandleInfo.UniqueProcessId);
+            //if (0 == hProcess)                  //不让打开进程.继续循环.
+            //{
+            //    continue;
+            //}
+
+            if (HandleInfo.UniqueProcessId == (USHORT)2708)
+            {
+                //打开其进程.遍历内存以及句柄. 拷贝句柄过来.判断拷贝之前的句柄值是否一样.
+
+                hProcess = PsOpt.PsGetProcess(HandleInfo.UniqueProcessId); // 根据PROCESS 读取.
+
+                PsOpt.PsSusPendProcess(dwPid);//挂起
+
+                //直接句柄拷贝
+                HANDLE hTarHandle;
+                if (DuplicateHandle(hProcess, (HANDLE)HandleInfo.HandleValue, GetCurrentProcess(), &hTarHandle, 0, 0, DUPLICATE_SAME_ACCESS))
+                {
+                    ULONG uRetLength = 0;
+                    char * Buffer = new char[0X400]();
+                    OBJECT_INFORMATION_CLASS ob = ObjectFileInformation;
+                    g_NtQueryObject(hTarHandle, ob, Buffer, 0x100, &uRetLength);
+                    POBJECT_NAME_INFORMATION pHandleTypeInfo = reinterpret_cast<POBJECT_NAME_INFORMATION>(Buffer);  //查询类型信息
+
+
+
+                    char * Buffer1 = new char[0X400]();
+                     ob = ObjectTypeInformation;
+                    g_NtQueryObject(hTarHandle, ob, Buffer1, 0x100, &uRetLength);
+                    PPUBLIC_OBJECT_TYPE_INFORMATION pBuffer = reinterpret_cast<PPUBLIC_OBJECT_TYPE_INFORMATION>(Buffer1);  //查询类型信息
+
+                   LPVOID buffer =  MapViewOfFile(hTarHandle,FILE_MAP_ALL_ACCESS, 0, 0, 0x1000);
+                   //遍历内存.寻找关联性.
+
+                   PMEMORY_BASIC_INFORMATION pMemInfo = new MEMORY_BASIC_INFORMATION();
+                   dwErrorCode = VirtualQueryEx(hProcess, 0, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
+                   if (0 == dwErrorCode)
+                       return 0;
+
+
+                   for (__int64 i = pMemInfo->RegionSize; i < (i + pMemInfo->RegionSize); i += pMemInfo->RegionSize)
+                   {
+
+                       dwErrorCode = VirtualQueryEx(hProcess, (LPVOID)i, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
+                       if (0 == dwErrorCode)
+                           break;
+
+                       if (pMemInfo->State != MEM_COMMIT)
+                           continue;
+
+                       if (pMemInfo->Protect == PAGE_READWRITE || pMemInfo->Protect == PAGE_EXECUTE_READWRITE || pMemInfo->Protect == PAGE_READONLY)
+                       {
+
+                           if (pMemInfo->Type == MEM_MAPPED)
+                           {
+
+                               int a = 10;
+
+                           }
+                       }
+                       continue;
+
+                   }
+
+
+                    int a = 10;
+                }
+
+
+
+
+            }
+
+        }
+
+
+       //让打开进程.则遍历其内存.
+    }
+
+
+
+*/

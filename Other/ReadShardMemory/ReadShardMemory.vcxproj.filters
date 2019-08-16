@@ -35,5 +35,8 @@
     <ClInclude Include="..\..\FileManger\CFileManger\CFileManger.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="run.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

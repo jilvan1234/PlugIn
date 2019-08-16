@@ -1,8 +1,9 @@
 #pragma once
 #include <windows.h>
-#include "publicstruct.h"
-#include "CProcessOpt.h"
-#include "CShellCode.h"
+#include "../../publicstruct.h"
+#include "../../ProcessManger/ProcessIterator/CProcessOpt.h"
+#include "../../ThreadManger/ShellCode/ShellCode/CShellCode.h"
+
 
 
 using namespace std;
