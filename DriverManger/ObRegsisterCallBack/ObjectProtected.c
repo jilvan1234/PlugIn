@@ -23,7 +23,7 @@ OB_PREOP_CALLBACK_STATUS MyObjectCallBack(
     }*/
   
         //»ñÈ¡Ãû×ÖÆ¥Åä
-        if (strstr((const char *)pszName, "xbbrowser"))
+        if (strstr((const char *)pszName, "calc"))
         {
 
 

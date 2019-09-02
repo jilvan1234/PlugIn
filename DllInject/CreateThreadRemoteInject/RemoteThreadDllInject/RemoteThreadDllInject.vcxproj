@@ -137,14 +137,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp" />
     <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp" />
     <ClCompile Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.cpp" />
     <ClCompile Include="run.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h" />
-    <ClInclude Include="..\..\..\publicstruct.h" />
     <ClInclude Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.h" />
     <ClInclude Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.h" />
   </ItemGroup>

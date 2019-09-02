@@ -1,6 +1,10 @@
+
 #pragma once
 #include <windows.h>
 #include <string>
+#include <algorithm>
+#include <vector>
+#include <map>
 using namespace std;
 
 #ifdef UNICODE
@@ -17,6 +21,38 @@ using namespace std;
 
 #endif
 
+#include "HOOK/DetoursInclude/detours.h"
+#include "HOOK/DetoursInclude/detver.h"
+
+
+/*
+
+
+#include "ClassManger/CNativeApi/CNativeApiManger.h"
+#include "ProcessManger/ProcessIterator/CProcessOpt.h"
+#include "ThreadManger/RemoteThread/CRemoteThread.h"
+#include "ThreadManger/ShellCode/ShellCode/CShellCode.h"
+#include "FileManger/CFileManger/CFileManger.h"
+#include "RegManger/RegManger/CRegManger.h"
+
+
+
+#ifdef _WIN64
+#pragma comment(lib,"../../../PulicLib/x64/Release/CNativeApi.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/RegManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/CFileManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/RemoteThread.lib")
+#else
+#pragma comment(lib,"../../../PulicLib/Win32/Release/CNativeApi.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/RegManger.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/CFileManger.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/RemoteThread.lib")
+#endif
+
+*/
+
 typedef LONG NTSTATUS;
 
 #define STATUS_SUCCESS                  ((NTSTATUS)0x00000000L)   
@@ -26,6 +62,10 @@ typedef LONG NTSTATUS;
 #define STATUS_INFO_LENGTH_MISMATCH     ((NTSTATUS)0xC0000004L)   
 
 #define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+
+
+
+
 //ZwQuerySystemInformation 需要用到的信息
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
@@ -339,7 +379,46 @@ typedef enum _PROCESSINFOCLASS {
 
 
 
-//ZwQueryinfromation信息
+
+
+
+
+//遍历系统信息
+
+
+
+
+
+//NtQueryObject
+
+
+
+
+typedef enum _OBJECT_INFORMATION_CLASS {
+    ObjectBasicInformation = 0,  //如果为1表示获取名字信息
+    ObjectFileInformation = 1,
+    ObjectTypeInformation = 2    //表示获取类型信息
+} OBJECT_INFORMATION_CLASS;
+//返回长度
+
+// NtQueryObject类型为0的信息结构体
+typedef struct _PUBLIC_OBJECT_BASIC_INFORMATION {
+    ULONG       Attributes;
+    ACCESS_MASK GrantedAccess;
+    ULONG       HandleCount;
+    ULONG       PointerCount;
+    ULONG       Reserved[10];
+} PUBLIC_OBJECT_BASIC_INFORMATION, *PPUBLIC_OBJECT_BASIC_INFORMATION;
+//查询句柄信息. 为1的结构体
+typedef struct _OBJECT_NAME_INformATION {
+    UNICODE_STRING Name;
+} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
+
+
+
+
+
+//为2的结构体
 
 typedef enum _RFILE_INFORMATION_CLASS {
     FileDirectoryInformation1 = 1,
@@ -449,6 +528,7 @@ typedef _Enum_is_bitflag_ enum _POOL_TYPE {
 
 } _Enum_is_bitflag_ POOL_TYPE;
 
+
 typedef struct _PUBLIC_OBJECT_TYPE_INFORMATION {
     UNICODE_STRING          TypeName;
     ULONG                   TotalNumberOfHandles;
@@ -470,40 +550,8 @@ typedef struct _PUBLIC_OBJECT_TYPE_INFORMATION {
 } PUBLIC_OBJECT_TYPE_INFORMATION, *PPUBLIC_OBJECT_TYPE_INFORMATION;
 
 
-//遍历系统信息
-typedef NTSTATUS(WINAPI * PfnZwQuerySystemInformation)(
-    IN ULONG SysInfoClass,
-    IN OUT PVOID SystemInfroMation,
-    IN ULONG SystemInforMationLength,
-    OUT PULONG RetLen);
 
-typedef enum _OBJECT_INFORMATION_CLASS {
-    ObjectBasicInformation = 0,  //如果为1表示获取名字信息
-    ObjectFileInformation = 1,
-    ObjectTypeInformation = 2    //表示获取类型信息
-} OBJECT_INFORMATION_CLASS;
 
-//单独对象获取打开句柄的信息
-typedef NTSTATUS(WINAPI * PfnZwQueryObject)(
-    _In_opt_ HANDLE Handle,                                 //句柄
-    _In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,   //要获取的类型信息
-    PVOID ObjectInformation,                                //缓冲区           用户模式下使用 NtQueryObject
-    _In_ ULONG ObjectInformationLength, _Out_opt_           //缓冲区大小
-    PULONG ReturnLength);                                   //返回长度
-
-// NtQueryObject类型为0的信息结构体
-
-typedef struct _PUBLIC_OBJECT_BASIC_INFORMATION {
-    ULONG       Attributes;
-    ACCESS_MASK GrantedAccess;
-    ULONG       HandleCount;
-    ULONG       PointerCount;
-    ULONG       Reserved[10];
-} PUBLIC_OBJECT_BASIC_INFORMATION, *PPUBLIC_OBJECT_BASIC_INFORMATION;
-//查询句柄信息.
-typedef struct _OBJECT_NAME_INformATION {
-    UNICODE_STRING Name;
-} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
 
 //遍历文件需要的信息
 
@@ -527,26 +575,7 @@ typedef struct _FILE_NAME_INFORMATION {
 
 
 
-typedef NTSTATUS(WINAPI * PfnNtQueryInformationFile)(
-    HANDLE                 FileHandle,
-    PIO_STATUS_BLOCK       IoStatusBlock,
-    PVOID                  FileInformation,
-    ULONG                  Length,
-    RFILE_INFORMATION_CLASS FileInformationClass
-    );
 
-//NtQueryObject类型为1的信息结构体.
-
-//typedef struct __PUBLIC_OBJECT_TYPE_INFORMATION {
-//    UNICODE_STRING TypeName;
-//    ULONG          Reserved[22];
-//} PUBLIC_OBJECT_TYPE_INFORMATION, *PPUBLIC_OBJECT_TYPE_INFORMATION;
-
-
-
-//函数指针赋值.
-
-//遍历某个进程的句柄信息
 
 typedef NTSTATUS(WINAPI* PfnZwQueryInformationProcess)(
     _In_      HANDLE           ProcessHandle,
@@ -556,5 +585,43 @@ typedef NTSTATUS(WINAPI* PfnZwQueryInformationProcess)(
     _Out_opt_ PULONG           ReturnLength
     );
 
+typedef NTSTATUS(WINAPI * PfnZwQueryObject)(
+    _In_opt_ HANDLE Handle,                                 //句柄
+    _In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,   //要获取的类型信息
+    PVOID ObjectInformation,                                //缓冲区           用户模式下使用 NtQueryObject
+    _In_ ULONG ObjectInformationLength, _Out_opt_           //缓冲区大小
+    PULONG ReturnLength);                                   //返回长度
 
+typedef NTSTATUS(WINAPI * PfnZwQuerySystemInformation)(
+    IN ULONG SysInfoClass,
+    IN OUT PVOID SystemInfroMation,
+    IN ULONG SystemInforMationLength,
+    OUT PULONG RetLen);
+
+
+typedef struct _SYSTEM_PROCESS_INFORMATION {
+    ULONG NextEntryOffset;
+    ULONG NumberOfThreads;
+    BYTE Reserved1[48];
+    UNICODE_STRING ImageName;
+    KPRIORITY BasePriority;
+    HANDLE UniqueProcessId;
+    PVOID Reserved2;
+    ULONG HandleCount;
+    ULONG SessionId;
+    PVOID Reserved3;
+    SIZE_T PeakVirtualSize;
+    SIZE_T VirtualSize;
+    ULONG Reserved4;
+    SIZE_T PeakWorkingSetSize;
+    SIZE_T WorkingSetSize;
+    PVOID Reserved5;
+    SIZE_T QuotaPagedPoolUsage;
+    PVOID Reserved6;
+    SIZE_T QuotaNonPagedPoolUsage;
+    SIZE_T PagefileUsage;
+    SIZE_T PeakPagefileUsage;
+    SIZE_T PrivatePageCount;
+    LARGE_INTEGER Reserved7[6];
+} SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
 

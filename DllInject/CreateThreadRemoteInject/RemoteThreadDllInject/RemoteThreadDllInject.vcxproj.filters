@@ -18,9 +18,6 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\ThreadManger\RemoteThread\CRemoteThread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -36,9 +33,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\ThreadManger\ShellCode\ShellCode\CShellCode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\publicstruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

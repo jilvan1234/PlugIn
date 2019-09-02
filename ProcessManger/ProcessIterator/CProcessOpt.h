@@ -3,12 +3,15 @@
 #include <vector>
 #include <string>
 #include "../../publicstruct.h"
+#include "../../ClassManger/CNativeApi/CNativeApiManger.h"      //全局的公共类
+
+
 #include <algorithm>  //tranfrom 字符串转大小写需要用到.
 
 using namespace std;
 
 
-class CProcessOpt
+class CProcessOpt : public CNativeApiManger
 {
 public:
     CProcessOpt();
@@ -41,10 +44,9 @@ public:
     BOOL    PsTerminateProcessTheModifyPermission(DWORD dwPid);
 
 public:
-    //获取进程数据
-    typedef NTSTATUS(WINAPI *NTQUERYSYSTEMINFORMATION)(IN SYSTEM_INFORMATION_CLASS, IN OUT PVOID, IN ULONG, OUT PULONG OPTIONAL);
-    NTQUERYSYSTEMINFORMATION m_NtQuerySytemInforMation;
-    PSYSTEM_PROCESSES NtGetProcessInfo(); //获取进程信息
+    //获取进程数据 Native相关.
+   
+    PSYSTEM_PROCESS_INFORMATION NtGetProcessInfo(); //获取进程信息
 public:
     //Model 获取exe的主基址
     BOOL MdGetProcessOepModel(DWORD dwPid, BYTE **hModel, UBinSize &BaseSize);
@@ -77,7 +79,6 @@ public:
 
     //获取句柄的全局信息
 
-    PfnZwQuerySystemInformation ZwQuerySystemInformation;
     PVOID HndRetSystemHandleInformation();
    
     //获取句柄类型.
@@ -89,6 +90,8 @@ public:
     */
     USHORT HndGetHandleTypeWithTypeName(CBinString TypeName);
     USHORT HndGetHandleTypeWithHandle(HANDLE handle); //根据Handle来获取句柄的类型
+
+  
 
     PfnZwQueryObject m_NtQueryObject;               //函数NtQueryObject
 public:

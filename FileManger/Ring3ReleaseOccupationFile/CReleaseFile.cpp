@@ -1,4 +1,6 @@
 #include "CReleaseFile.h"
+#include "../../publicstruct.h"
+#include "../../FileManger/CFileManger/CFileManger.h"
 
 
 
@@ -121,21 +123,7 @@ BOOL CReleaseFile::CloseHandleForFile(MYISTRING fileName)
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
         0);
-    pHndleBasicInfo = GetHandleBasicInfo(); //获取句柄表的基础信息.
-    if (NULL == pHndleBasicInfo)
-        return NULL;
-
-    //遍历句柄表.找到文件类型
-    uHandleCount = pHndleBasicInfo->NumberOfHandles;
-    for (int i = 0; i < uHandleCount; i++)
-    {
-        HandleTableInfo = pHndleBasicInfo->Handles[i];
-        if (GetCurrentProcess() == (HANDLE)HandleTableInfo.UniqueProcessId && HandleTableInfo.HandleValue ==(USHORT)hFile)
-        {
-            dwHandleType = HandleTableInfo.ObjectTypeIndex;
-        }
-    }
-    CloseHandle(hFile);
+   
 
 
     //遍历进程.找到所有跟这个句柄类型相似的类型.

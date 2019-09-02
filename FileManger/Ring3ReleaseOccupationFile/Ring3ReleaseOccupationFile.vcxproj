@@ -119,13 +119,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CReleaseFile.cpp" />
+    <ClCompile Include="..\..\ClassManger\CNativeApi\CNativeApiManger.cpp" />
+    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp" />
+    <ClCompile Include="..\CFileManger\CFileManger.cpp" />
     <ClCompile Include="run.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CReleaseFile.h" />
+    <ClInclude Include="..\..\ClassManger\CNativeApi\CNativeApiManger.h" />
+    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h" />
+    <ClInclude Include="..\CFileManger\CFileManger.h" />
     <ClInclude Include="define.h" />
-    <ClInclude Include="NtQuerySystemInformation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

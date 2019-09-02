@@ -9,13 +9,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
-#include "CProcessOpt.h"
-#include "CFileManger.h"
+#include "../../ClassManger/CNativeApi/CNativeApiManger.h"
+#include "../../ProcessManger/ProcessIterator/CProcessOpt.h"
+#include "../../FileManger/CFileManger/CFileManger.h"
 #include <math.h>
-#include <publicstruct.h>
+#include "../../publicstruct.h"
 #include <Psapi.h>
 #include "run.h"
 #include <TlHelp32.h>
+
+
+#ifdef _WIN64
+#pragma comment(lib,"../../PulicLib/x64/Release/CNativeApi.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/RegManger.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/CFileManger.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/RemoteThread.lib")
+#else
+#pragma comment(lib,"../../PulicLib/Win32/Release/CNativeApi.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/RegManger.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/CFileManger.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/RemoteThread.lib")
+#endif
+
 
 CProcessOpt g_PsOpt;
 
@@ -29,6 +46,8 @@ typedef struct _PATH_HANDLE
 }PATH_HANDLE, *PPATH_HANDLE;
 
 
+#define GLOBAL_DIR TEXT("D:\\SharMemory");
+
 int MmGetSectionMemoryAnWriteFile(const HANDLE &hProcess, DWORD dwPid,CBinString Path);
 
 //遍历进程下的模块信息需要用到.
@@ -39,7 +58,7 @@ PfnZwQueryObject g_NtQueryObject = reinterpret_cast<PfnZwQueryObject>(g_PsOpt.Mm
 PfnZwQuerySystemInformation ZwQuerySystemInformation = reinterpret_cast<PfnZwQuerySystemInformation>(g_PsOpt.MmGetAddress(TEXT("ntdll.dll"),"ZwQuerySystemInformation"));
 
 //根据句柄获取文件名路径.
-PfnNtQueryInformationFile ZwQueryInformationFile = reinterpret_cast<PfnNtQueryInformationFile>(g_PsOpt.MmGetAddress(TEXT("ntdll.dll"), "ZwQueryInformationFile"));
+
 // 拼接路径,创建文件夹.
 CBinString SplicingPathFileName(CBinString DirPath, CProcessOpt &PsOpt, DWORD dwPid, PMEMORY_BASIC_INFORMATION pMemInfo)
 {
@@ -95,8 +114,8 @@ CBinString CreateDirPathName(DWORD dwPid)
 {
     CFileManger FsOpt;
     CProcessOpt PsOpt;
-    CBinString DirPath = TEXT("D:\\SharMemory");
-    FsOpt.FsRemoveDirector(DirPath);             //每次运行之前先删除.
+    CBinString DirPath = GLOBAL_DIR;
+    FsOpt.FsRemoveDirector(DirPath.substr(0,DirPath.find_last_of(TEXT("\\"))));             //每次运行之前先删除.
     FsOpt.FsCreateDirector(DirPath);
     DirPath += TEXT("\\");
 
@@ -187,19 +206,29 @@ DWORD  WINAPI GetFileName(LPVOID lParam )
     memset(Buffer, 0, 0x100);
     g_NtQueryObject(PtahHandleInfor->hTarHandle, ob, Buffer, 0x100, &uRetLength);
     POBJECT_NAME_INFORMATION pFileInfo = reinterpret_cast<POBJECT_NAME_INFORMATION>(Buffer);
-    TCHAR szBuffer[0x256] = { 0 };
-    memcpy(szBuffer, pFileInfo->Name.Buffer, pFileInfo->Name.MaximumLength);
+    /* TCHAR szBuffer[0x256] = { 0 };
+     memcpy(szBuffer, pFileInfo->Name.Buffer, pFileInfo->Name.MaximumLength);*/
   
 
  
   
     CBinString TempDirPath = PtahHandleInfor->DirPath;
     TempDirPath  += TEXT("GlobalHandleName.txt");
+  
+    DWORD dwWriteBytes = 0;
+   // DWORD dwSize = ::lstrlen(pFileInfo);
+
+    if (pFileInfo->Name.Length == 0 || pFileInfo->Name.MaximumLength == 0)
+    {
+        delete[] Buffer;
+        SetEvent(g_GetFileNmaeEvent);
+        return NULL;
+    }
     hFile = fsOpt.FsCreateFile(TempDirPath.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, NULL, NULL);
     SetFilePointer(hFile, 0, 0, FILE_END);
-    DWORD dwWriteBytes = 0;
-    DWORD dwSize = ::lstrlen(szBuffer);
     WriteFile(hFile, pFileInfo->Name.Buffer, pFileInfo->Name.Length, &dwWriteBytes, NULL);
+    char szLine[] = "\n";
+    WriteFile(hFile, szLine, sizeof(szLine), &dwWriteBytes, nullptr);
     ////str.substr(2,str.find_first_of(TEXT("\\")));
    
     //CloseHandle(hFile);
@@ -222,7 +251,7 @@ DWORD  WINAPI GetFileName(LPVOID lParam )
     PATH_HANDLE pathHandleInfo = { 0 };
   
 
-    for (DWORD64 i = 0; i < 400000; i += 4)
+    for (DWORD64 i = 0; i < handlecount * 8; i += 4)
     {
 
         if (1 == DuplicateHandle(hProcess, (HANDLE)i, GetCurrentProcess(), &hTarHandle, 0, 0, DUPLICATE_SAME_ACCESS))
@@ -248,7 +277,7 @@ DWORD  WINAPI GetFileName(LPVOID lParam )
                 HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)GetFileName, &pathHandleInfo, 0, 0);
                 //GetFileName(pBuffer->MaintainTypeList,(HANDLE)hTarHandle);
 
-                WaitForSingleObject(hThread, 500);
+                WaitForSingleObject(hThread, 100);
             }
 
         }
@@ -386,115 +415,3 @@ int MmGetSectionMemoryAnWriteFile( const HANDLE &hProcess,DWORD dwPid,CBinString
     return {};
 }
 
-/*
-
- DWORD dwGlobalHandleCount = 0;
-    SYSTEM_HANDLE_TABLE_ENTRY_INFO HandleInfo;
-    PSYSTEM_HANDLE_INFORMATION pGlobalHandle = NULL;
-    USHORT dwType = 0;
-    pGlobalHandle = reinterpret_cast<PSYSTEM_HANDLE_INFORMATION>(PsOpt.HndRetSystemHandleInformation());
-    if (NULL == pGlobalHandle)
-    {
-        return 0;
-    }
-    HANDLE hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 0x1000, TEXT("MyType"));
-    dwGlobalHandleCount = pGlobalHandle->NumberOfHandles;
-    dwType = PsOpt.HndGetHandleTypeWithHandle(hFileMapping);
-    CloseHandle(hFileMapping);
-    for (int i = 0; i < dwGlobalHandleCount; i++)
-    {
-        HandleInfo = pGlobalHandle->Handles[i];
-        //得到句柄类型信息.
-
-        if (dwType == 0)
-        {
-            CloseHandle(hFileMapping);
-            return 0;
-        }
-
-        if (dwType == (USHORT)HandleInfo.ObjectTypeIndex)
-        {
-            //是共享内存.打开句柄,遍历内存信息.并且NtQuery进行寻找.
-
-            //hProcess = PsOpt.PsGetProcess(HandleInfo.UniqueProcessId);
-            //if (0 == hProcess)                  //不让打开进程.继续循环.
-            //{
-            //    continue;
-            //}
-
-            if (HandleInfo.UniqueProcessId == (USHORT)2708)
-            {
-                //打开其进程.遍历内存以及句柄. 拷贝句柄过来.判断拷贝之前的句柄值是否一样.
-
-                hProcess = PsOpt.PsGetProcess(HandleInfo.UniqueProcessId); // 根据PROCESS 读取.
-
-                PsOpt.PsSusPendProcess(dwPid);//挂起
-
-                //直接句柄拷贝
-                HANDLE hTarHandle;
-                if (DuplicateHandle(hProcess, (HANDLE)HandleInfo.HandleValue, GetCurrentProcess(), &hTarHandle, 0, 0, DUPLICATE_SAME_ACCESS))
-                {
-                    ULONG uRetLength = 0;
-                    char * Buffer = new char[0X400]();
-                    OBJECT_INFORMATION_CLASS ob = ObjectFileInformation;
-                    g_NtQueryObject(hTarHandle, ob, Buffer, 0x100, &uRetLength);
-                    POBJECT_NAME_INFORMATION pHandleTypeInfo = reinterpret_cast<POBJECT_NAME_INFORMATION>(Buffer);  //查询类型信息
-
-
-
-                    char * Buffer1 = new char[0X400]();
-                     ob = ObjectTypeInformation;
-                    g_NtQueryObject(hTarHandle, ob, Buffer1, 0x100, &uRetLength);
-                    PPUBLIC_OBJECT_TYPE_INFORMATION pBuffer = reinterpret_cast<PPUBLIC_OBJECT_TYPE_INFORMATION>(Buffer1);  //查询类型信息
-
-                   LPVOID buffer =  MapViewOfFile(hTarHandle,FILE_MAP_ALL_ACCESS, 0, 0, 0x1000);
-                   //遍历内存.寻找关联性.
-
-                   PMEMORY_BASIC_INFORMATION pMemInfo = new MEMORY_BASIC_INFORMATION();
-                   dwErrorCode = VirtualQueryEx(hProcess, 0, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
-                   if (0 == dwErrorCode)
-                       return 0;
-
-
-                   for (__int64 i = pMemInfo->RegionSize; i < (i + pMemInfo->RegionSize); i += pMemInfo->RegionSize)
-                   {
-
-                       dwErrorCode = VirtualQueryEx(hProcess, (LPVOID)i, pMemInfo, sizeof(MEMORY_BASIC_INFORMATION));
-                       if (0 == dwErrorCode)
-                           break;
-
-                       if (pMemInfo->State != MEM_COMMIT)
-                           continue;
-
-                       if (pMemInfo->Protect == PAGE_READWRITE || pMemInfo->Protect == PAGE_EXECUTE_READWRITE || pMemInfo->Protect == PAGE_READONLY)
-                       {
-
-                           if (pMemInfo->Type == MEM_MAPPED)
-                           {
-
-                               int a = 10;
-
-                           }
-                       }
-                       continue;
-
-                   }
-
-
-                    int a = 10;
-                }
-
-
-
-
-            }
-
-        }
-
-
-       //让打开进程.则遍历其内存.
-    }
-
-
-
-*/

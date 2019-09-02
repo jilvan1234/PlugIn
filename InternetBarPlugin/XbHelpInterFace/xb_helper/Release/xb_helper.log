@@ -1,0 +1,17 @@
+﻿cl : 命令行 warning D9025: 正在重写“/sdl”(用“/GS-”)
+  stdafx.cpp
+cl : 命令行 warning D9025: 正在重写“/sdl”(用“/GS-”)
+  CFilterByDll.cpp
+CFilterByDll.cpp(138): warning C4018: “<”: 有符号/无符号不匹配
+  CMyHook.cpp
+  dllmain.cpp
+  HookFunctionDefine.cpp
+  xb_helper.cpp
+  正在生成代码
+  All 528 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+detours.lib(detours.obj) : warning LNK4099: 未找到 PDB“detours.pdb”(使用“detours.lib(detours.obj)”或在“F:\公司文档\公司代码\PlugIn\InternetBarPlugin\XbHelpInterFace\xb_helper\Release\detours.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+detours.lib(modules.obj) : warning LNK4099: 未找到 PDB“detours.pdb”(使用“detours.lib(modules.obj)”或在“F:\公司文档\公司代码\PlugIn\InternetBarPlugin\XbHelpInterFace\xb_helper\Release\detours.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+detours.lib(disasm.obj) : warning LNK4099: 未找到 PDB“detours.pdb”(使用“detours.lib(disasm.obj)”或在“F:\公司文档\公司代码\PlugIn\InternetBarPlugin\XbHelpInterFace\xb_helper\Release\detours.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+  xb_helper.vcxproj -> F:\公司文档\公司代码\PlugIn\InternetBarPlugin\XbHelpInterFace\xb_helper\Release\xb_helper.dll
+  xb_helper.vcxproj -> Release\xb_helper.pdb (Full PDB)

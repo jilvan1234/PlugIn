@@ -8,8 +8,12 @@
 设置文件/目录属性
 */
 #include "../../publicstruct.h"
+#include "../../ClassManger/CNativeApi/CNativeApiManger.h"
 
-class CFileManger
+
+
+
+class CFileManger : public CNativeApiManger
 {
 public:
     CFileManger();

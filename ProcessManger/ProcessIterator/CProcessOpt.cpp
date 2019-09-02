@@ -9,8 +9,10 @@ CProcessOpt::CProcessOpt()
     m_PfnNtSuspendProcess = NULL;
     m_PfnNtResumeProcess = NULL;
     m_PfnNtTerminateProcess = NULL;
-    m_NtQuerySytemInforMation = NULL;
+   
     InitFunctionTablePoint(); //初始化函数表
+
+    SeEnbalAdjustPrivileges(SE_DEBUG_NAME);
 
 }
 
@@ -371,34 +373,47 @@ BOOL CProcessOpt::PsTerminateProcessTheModifyPermission(DWORD dwPid)
 }
 
 //获取进程信息.
-PSYSTEM_PROCESSES CProcessOpt::NtGetProcessInfo()
+PSYSTEM_PROCESS_INFORMATION CProcessOpt::NtGetProcessInfo()
 {
-    if (m_NtQuerySytemInforMation != NULL)
+
+    PfnZwQuerySystemInformation ZwQuerySystemInformation = NULL;
+    ZwQuerySystemInformation =
+        reinterpret_cast<PfnZwQuerySystemInformation>(CNativeApiManger::NatGetZwQuerySystemInformation());
+
+    SYSTEM_BASIC_INFORMATION sbi = { 0 };
+    DWORD dwSize = 0x1000;
+    DWORD uRetSize = 10;
+    ULONG * pBuffer = new ULONG[dwSize]();
+    NTSTATUS status = 0;
+
+    if (ZwQuerySystemInformation != NULL)
     {
-        SYSTEM_BASIC_INFORMATION sbi = { 0 };
-        NTSTATUS status = m_NtQuerySytemInforMation(SystemBasicInformation, (PVOID)&sbi, sizeof(sbi), NULL);
-        if (status != STATUS_SUCCESS)
-        {
-            return NULL;
-        }
 
-        DWORD dwNeedSize = 0;
-        BYTE *pBuffer = NULL;
-        
-        status = m_NtQuerySytemInforMation(SystemProcessesAndThreadsInformation, NULL, 0, &dwNeedSize);
-        if (status == STATUS_INFO_LENGTH_MISMATCH)
+        do
         {
-            pBuffer = new BYTE[dwNeedSize];
-            status = m_NtQuerySytemInforMation(SystemProcessesAndThreadsInformation, (PVOID)pBuffer, dwNeedSize, NULL);
-            if (status == STATUS_SUCCESS)
+
+            status = ZwQuerySystemInformation(SystemProcessesAndThreadsInformation, pBuffer, dwSize, &uRetSize);
+            if (status == STATUS_INFO_LENGTH_MISMATCH)
             {
+                delete[] pBuffer;
+                pBuffer = new ULONG[dwSize *= 2]();
+            }
+            else
+            {
+                if (!NT_SUCCESS(status))
+                {
+                    delete[] pBuffer;
+                    return NULL;
+                }
 
-                return (PSYSTEM_PROCESSES)pBuffer;
+              
             }
 
-        }
+        } while (status == STATUS_INFO_LENGTH_MISMATCH);
 
-        return NULL;
+
+
+        return (PSYSTEM_PROCESS_INFORMATION)pBuffer;
     }
     return NULL;
 }
@@ -567,7 +582,6 @@ void CProcessOpt::InitFunctionTablePoint()
         static_cast<PfnNtSuspendAnResumeProcess>(MmGetAddress(TEXT("ntdll.dll"), "NtSuspendProcess"));
     m_PfnNtResumeProcess =
         static_cast<PfnNtSuspendAnResumeProcess>(MmGetAddress(TEXT("ntdll.dll"), "NtResumeProcess"));
-    m_NtQuerySytemInforMation = static_cast<NTQUERYSYSTEMINFORMATION>(MmGetAddress(TEXT("ntdll.dll"),"ZwQuerySystemInformation"));
     m_NtQueryObject = static_cast<PfnZwQueryObject>(MmGetAddress(TEXT("ntdll.dll"),"NtQueryObject"));
     
    
@@ -585,6 +599,8 @@ void CProcessOpt::ReleaseResource()
     if (NULL != m_PfnNtResumeProcess)
         m_PfnNtResumeProcess = NULL;
 }
+//句柄拷贝
+
 BOOL CProcessOpt::HndDuplicateHandle(
     HANDLE hSourceProcessHandle,
     HANDLE hSourceHandle,
@@ -612,19 +628,22 @@ PVOID CProcessOpt::HndRetSystemHandleInformation()
     DWORD dwRetSize = 0;
     NTSTATUS ntStatus;
     szBuffer = new ULONG[dwSize];
+    PfnZwQuerySystemInformation ZwQuerySystemInformation = NULL;
+    ZwQuerySystemInformation = 
+        reinterpret_cast<PfnZwQuerySystemInformation>(CNativeApiManger::NatGetZwQuerySystemInformation());
     if (NULL == szBuffer)
         return NULL;
-    if (NULL == m_NtQuerySytemInforMation)
+    if (NULL == ZwQuerySystemInformation)
         return NULL;
     //第一遍调用可能不成功.所以获取返回值. 并且根据DwRetSize的值去重新申请空间
     do
     {
-        ntStatus = m_NtQuerySytemInforMation(SystemHandleInformation, szBuffer, dwSize, &dwRetSize);
+        ntStatus = ZwQuerySystemInformation(SystemHandleInformation, szBuffer, dwSize, &dwRetSize);
         if (ntStatus == STATUS_INFO_LENGTH_MISMATCH) //代表空间不足.重新申请空间
         {
 
             delete[] szBuffer;
-            szBuffer = new ULONG[dwSize *= 2];
+            szBuffer = new ULONG[dwRetSize *= 2];
 
         }
         else
@@ -711,6 +730,9 @@ USHORT CProcessOpt::HndGetHandleTypeWithHandle(HANDLE handle)
     delete[] pBuffer;
     return Type;
 }
+
+// 
+
 
 
 //对GetProcess以及Loadlibrary的封装.

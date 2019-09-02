@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\ClassManger\CNativeApi\CNativeApiManger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\RegManger\RegManger\CRegManger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ClassManger\CNativeApi\CNativeApiManger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

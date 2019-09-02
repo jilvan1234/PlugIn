@@ -3,11 +3,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
-#include "CProcessOpt.h"
-#include "CRemoteThread.h"
+#include "../../publicstruct.h"
+
+
+#include "ClassManger/CNativeApi/CNativeApiManger.h"
+#include "ProcessManger/ProcessIterator/CProcessOpt.h"
+#include "ThreadManger/RemoteThread/CRemoteThread.h"
+#include "ThreadManger/ShellCode/ShellCode/CShellCode.h"
+#include "FileManger/CFileManger/CFileManger.h"
+#include "RegManger/RegManger/CRegManger.h"
+
+
+
+#ifdef _WIN64
+#pragma comment(lib,"../../../PulicLib/x64/Release/CNativeApi.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/RegManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/CFileManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/RemoteThread.lib")
+#else
+#pragma comment(lib,"../../../PulicLib/Win32/Release/CNativeApi.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/RegManger.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/CFileManger.lib")
+#pragma comment(lib,"../../../PulicLib/Win32/Release/RemoteThread.lib")
+
+//#pragma comment(lib,"../../../HOOK/MinHook/MinHookLib/libMinHook.x86.lib")
+
+#endif
+
+
 
 #include <VersionHelpers.h>
-
 
 
 //__declspec(naked) void ShellCodeFunction()

@@ -272,6 +272,7 @@ void RunRemoteControl() //在服务中创建桌面进程.
 	if (!CreateProcessAsUser(TokenDup, pGetFileName->GetStartFileName().c_str(), NULL, NULL, NULL, FALSE, dwCreationFlags, pEnv, NULL, &si, &pi))
 	{
 		int error2 = GetLastError();
+        OutputDebugStringA("启动失败\r\n");
         delete pGetFileName;
 		WriteLogString(reinterpret_cast<LPWSTR>(L"RunRemoteControl CreateProcessAsUser failed.Last error is:%d"), error2);
 		return;

@@ -18,18 +18,27 @@
     <ClCompile Include="run.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CReleaseFile.cpp">
+    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CFileManger\CFileManger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ClassManger\CNativeApi\CNativeApiManger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CReleaseFile.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="NtQuerySystemInformation.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="define.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CFileManger\CFileManger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ClassManger\CNativeApi\CNativeApiManger.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

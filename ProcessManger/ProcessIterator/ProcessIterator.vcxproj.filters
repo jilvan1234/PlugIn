@@ -21,9 +21,15 @@
     <ClCompile Include="CProcessOpt.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ClassManger\CNativeApi\CNativeApiManger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CProcessOpt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ClassManger\CNativeApi\CNativeApiManger.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

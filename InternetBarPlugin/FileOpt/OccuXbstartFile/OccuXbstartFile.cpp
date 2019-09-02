@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "OccuXbstartFile.h"
 #include "../../../publicstruct.h"
+#include "../../../ClassManger/CNativeApi/CNativeApiManger.h"
 #include "../../../RegManger/RegManger/CRegManger.h"
 #include "../../../FileManger/CFileManger/CFileManger.h"
 #include "../../../ProcessManger/ProcessIterator/CProcessOpt.h"
@@ -129,6 +130,7 @@ BOOL ProtectedRootPathFile(CBinString ProtectFileName)
     
     return 0;
 }
+
 BOOL ProtectedXbVersionFile(CBinString ProtectFileName)
 {
 
@@ -167,8 +169,8 @@ BOOL ProtectedXbVersionFile(CBinString ProtectFileName)
         HANDLE hTempFile = INVALID_HANDLE_VALUE;
         hTempFile = fileOpt.FsCreateFile(
             XbBrowser,
-            GENERIC_READ | GENERIC_WRITE,
-            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            GENERIC_READ ,
+            FILE_SHARE_READ ,
             NULL, OPEN_EXISTING,
             NULL,
             NULL);
@@ -176,6 +178,7 @@ BOOL ProtectedXbVersionFile(CBinString ProtectFileName)
         {
             return 0;
         }
+        CloseHandle(hTempFile);
         HANDLE hFile = fileOpt.FsCreateFile(
             XbBrowser,
             GENERIC_READ,
@@ -231,7 +234,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
     ProtectedRootPathFile(TEXT("xbstarter.exe")); //保护根目录下的文件
-   // ProtectedXbVersionFile(TEXT("xbbrowser.exe")); //保护小白版本目录下的文件.
+    ProtectedXbVersionFile(TEXT("xbbrowser.exe")); //保护小白版本目录下的文件.
 }
 
 

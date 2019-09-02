@@ -39,9 +39,8 @@
     <None Include="bin3.bin">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="Resource\KILL_IELOCKl.dll" />
-    <None Include="Resource\IN_IELOCKLOADER.exe" />
-    <None Include="Resource\SystemServices.exe" />
-    <None Include="Resource\CreateAnStartServices.exe" />
+    <None Include="Resource\CHANGE_FILESECURRTY_WIN7.exe" />
+    <None Include="Resource\version_WIN7_SP1.dll" />
+    <None Include="Resource\version_win10.dll" />
   </ItemGroup>
 </Project>

