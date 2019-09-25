@@ -5,11 +5,9 @@
 #include <iostream>
 #include "CPeManger.h"
 #include <stdlib.h>
-/*
 
+#define FILE_NAME TEXT("F:\\公司文档\\公司代码\\PlugIn\\TestCode\\Ring3TestCode\\Release\\kernel32.dll")
 
-*/
-#define FILE_NAME TEXT("F:\\公司文档\\公司代码\\PlugIn\\TestCode\\Ring3TestCode\\Release\\Ring3TestCode.exe")
 int main()
 {
     CPeManger PeOpt;
@@ -23,11 +21,28 @@ int main()
     PIMAGE_OPTIONAL_HEADER pOptHeader = nullptr;
     vector <PIMAGE_SECTION_HEADER> *pSectionList = nullptr;
     vector <PIMAGE_DATA_DIRECTORY> *pDirectoryList = nullptr;
+    vector<PIMAGE_IMPORT_DESCRIPTOR> *pList = NULL;
+    vector<PIMAGE_EXPORT_DIRECTORY> *pExportList = nullptr;
+    vector<PEXPORT_TYPE_ADDRESSRVA> *pExPortFunctionNameRva = nullptr;
+    vector<PEXPORT_FULLNAME> *pExportFullNameList = nullptr;
+    vector<PIMPORT_IMPORTPE_FULLNAME> *pImportFullBaseName = nullptr;
+
     HANDLE hFile = CreateFile(FILE_NAME, GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
     //pFileHeader = PeOpt.PeHederGetFileHeader(TEXT(""),hFile);
-    pDirectoryList = PeOpt.PeDirGetDirectory(TEXT(""), hFile,PeOpt.PeDesireAccessGetDesiredAccessRead());
+    /*pDirectoryList = PeOpt.PeDirGetDirectory(TEXT(""), hFile,PeOpt.PeDesireAccessGetDesiredAccessRead());
 
-    PeOpt.PeImportGetImport(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+    pList = PeOpt.PeImportGetFileImportList(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+    PeOpt.PeFreeImportFileList(pList);*/
+
+    pExportList = PeOpt.PeExPortGetFileExPort(TEXT(""),hFile,PeOpt.PeDesireAccessGetDesiredAccessRead());
+    pExPortFunctionNameRva = PeOpt.PeExPortGetFullFunctionNameRva(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+
+    pExPortFunctionNameRva = PeOpt.PeExPortGetFullFunctionAddressRva(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+
+    pExportFullNameList = PeOpt.PeExportGetFullFunctionName(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+    pImportFullBaseName = PeOpt.PeImportGetFullBaseName(TEXT(""), hFile, PeOpt.PeDesireAccessGetDesiredAccessRead());
+
+    
     system("pause");
 }
 

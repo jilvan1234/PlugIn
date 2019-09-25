@@ -96,6 +96,16 @@ public:
     PfnZwQueryObject m_NtQueryObject;               //函数NtQueryObject
 public:
     PVOID   MmGetAddress(CBinString ModuleName, string FunctionName);
+
+
+public:
+    //进程保护相关 
+
+    //保护进程,关闭蓝屏.
+    void RtlProtectedProcess();
+
+    //保护线程,关闭蓝屏.
+
 private:
     //初始化函数指针
     void    InitFunctionTablePoint();

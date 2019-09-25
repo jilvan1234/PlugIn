@@ -294,7 +294,7 @@ void FilterW()
    
     CBinString strPath = pSzNam;
     strPath =  strPath.substr(strPath.find_last_of(TEXT("\\"))+1);
-    CBinString FiltterName1 = TEXT("Packet");
+    CBinString FiltterName1 = TEXT("WTPcap.dll");
     CBinString FiltterName2 = TEXT("NPF");
     ::transform(FiltterName1.begin(), FiltterName1.end(), FiltterName1.begin(), ::toupper);
     ::transform(strPath.begin(), strPath.end(), strPath.begin(), ::toupper);
@@ -307,10 +307,7 @@ void FilterW()
         ExitProcess(0);
     }
 
-    if (strPath.find(FiltterName2) != strPath.npos)
-    {
-        ExitProcess(0);
-    }
+   
 
     return;
     

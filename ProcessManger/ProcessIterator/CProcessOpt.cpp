@@ -570,6 +570,19 @@ BOOL CProcessOpt::SeEnbalAdjustPrivileges(LPCTSTR Privileges)
     return TRUE;
 }
 
+//保护进程,关闭蓝屏.
+void CProcessOpt::RtlProtectedProcess()
+{
+    using PfnRtlSetProcessIsCritical = int(*WINAPI)(int, int, int);
+    PfnRtlSetProcessIsCritical RtlSetProcessIsCritical = NULL;
+    RtlSetProcessIsCritical = reinterpret_cast<PfnRtlSetProcessIsCritical>(MmGetAddress (TEXT("ntdll.dll"), "RtlSetProcessIsCritical"));
+    if (nullptr == RtlSetProcessIsCritical)
+        return;
+
+    RtlSetProcessIsCritical(TRUE, NULL, FALSE);
+
+}
+
 //初始化NT函数
 void CProcessOpt::InitFunctionTablePoint()
 {

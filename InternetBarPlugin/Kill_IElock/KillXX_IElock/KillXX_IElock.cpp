@@ -8,7 +8,34 @@
 #include <vector>
 #include "../../../publicstruct.h"
 #include "../../../ProcessManger/ProcessIterator/CProcessOpt.h"
+#include "../../../PeManger/PeManger/CPeManger.h"
 
+#ifdef _WIN64
+
+#ifdef _DEBUG
+
+//加载Debug版本.
+#pragma comment(lib,"../../../PulicLib/x64/Debug/PeManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Debug/ProcessIterator.lib")
+#else
+//加载64Dbg版本
+#pragma comment(lib,"../../../PulicLib/x64/Release/PeManger.lib")
+#pragma comment(lib,"../../../PulicLib/x64/Release/ProcessIterator.lib")
+#endif
+
+#else
+
+#ifdef _DEBUG
+#pragma  comment(lib,"../../../PulicLib/Win32/Debug/PeManger.lib")
+#pragma  comment(lib,"../../../PulicLib/Win32/Debug/ProcessIterator.lib")
+
+#else
+#pragma  comment(lib,"../../../PulicLib/Win32/Release/PeManger.lib")
+#pragma  comment(lib,"../../../PulicLib/Win32/Release/ProcessIterator.lib")
+
+#endif
+
+#endif
 using namespace std;
 BOOL ItatorProcess();
 BOOL IteratorModel(DWORD dwPid);
@@ -53,6 +80,8 @@ BOOL IteratorModel(DWORD dwPid)
     CBinString MyFindCompareString = TEXT("IELock.dll"); //转为小写.
 
     transform(MyFindCompareString.begin(), MyFindCompareString.end(), MyFindCompareString.begin(), ::tolower);
+    CPeManger pe;
+    vector<PEXPORT_FULLNAME> * pExPortFullName = nullptr;
     while (bRet)
     {
 
@@ -65,9 +94,11 @@ BOOL IteratorModel(DWORD dwPid)
             return TRUE;
         }
        
-      
+        //打开文件.解析PE.判断导出表是否有 Call. 如果有.杀掉.
+        
         bRet = Module32Next(hSnapshot, &mi);
     }
+   
 
     CloseHandle(hSnapshot);
 

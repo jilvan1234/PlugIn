@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CPeManger.h"
-
+#include <dbghelp.h>
+#pragma comment (lib,"Dbghelp.lib")
 
 CPeManger::CPeManger()
 {
@@ -543,6 +544,7 @@ vector<PIMAGE_SECTION_HEADER> * CPeManger::PeHederGetSectionHeader(CBinString Fi
         }
         return nullptr;
     }
+    return nullptr;
 }
 
 //获取目录表表项
@@ -579,7 +581,7 @@ vector<PIMAGE_DATA_DIRECTORY>* CPeManger::PeDirGetDirectory(CBinString FileName,
 
 
 //获取导入表
-vector<PIMAGE_IMPORT_DESCRIPTOR>* CPeManger::PeImportGetImport(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+vector<PIMAGE_IMPORT_DESCRIPTOR>* CPeManger::PeImportGetFileImportList(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
 {
 
     /*
@@ -649,7 +651,7 @@ vector<PIMAGE_IMPORT_DESCRIPTOR>* CPeManger::PeImportGetImport(CBinString FileNa
     while (itSection != pSectionList->end())
     {
         itSectionCur = itSection;
-        if (pImportDirectory->VirtualAddress > (*itSectionCur)->VirtualAddress && pImportDirectory->VirtualAddress <= (*(itSectionCur = itSectionCur + 1))->VirtualAddress)
+        if (pImportDirectory->VirtualAddress > (*itSectionCur)->VirtualAddress && pImportDirectory->VirtualAddress <= (*(itSectionCur + 1))->VirtualAddress)
         {
             
             lSectionMemSize.QuadPart = (*itSectionCur)->Misc.VirtualSize; //内存大小
@@ -689,30 +691,450 @@ vector<PIMAGE_IMPORT_DESCRIPTOR>* CPeManger::PeImportGetImport(CBinString FileNa
 #else
         SetFilePointer(hFile, limportBeginFAOffset.LowPart, 0, FILE_BEGIN);
 #endif
-        PIMAGE_IMPORT_DESCRIPTOR pImportBuf = new IMAGE_IMPORT_DESCRIPTOR(); //创建缓冲区进行读取.
-        dwRet = ReadFile(hFile, pImportBuf, sizeof(IMAGE_IMPORT_DESCRIPTOR), &dwReadBytes, nullptr);
-           if (!dwRet)
-           {
-               return nullptr;
-           }
-        while (pImportBuf != nullptr)
+       
+        while (true)
         {
 
-            pImportList->push_back(reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(pImportBuf));
-
+            PIMAGE_IMPORT_DESCRIPTOR pImportBuf = new IMAGE_IMPORT_DESCRIPTOR(); //创建缓冲区进行读取.
             dwRet = ReadFile(hFile, pImportBuf, sizeof(IMAGE_IMPORT_DESCRIPTOR), &dwReadBytes, nullptr);
             if (!dwRet)
             {
                 return nullptr;
             }
-
-            PIMAGE_IMPORT_DESCRIPTOR pImportBuf = new IMAGE_IMPORT_DESCRIPTOR(); //创建缓冲区进行读取.
+            if (pImportBuf->Characteristics == 0
+                && pImportBuf->FirstThunk == 0
+                && pImportBuf->ForwarderChain == 0
+                && pImportBuf->Name == 0
+                && pImportBuf->OriginalFirstThunk == 0
+                && pImportBuf->TimeDateStamp == 0
+                )
+            {
+                return pImportList;
+            }
+            pImportList->push_back(reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(pImportBuf));
         }
     }
+   
+    //hfile == NULL
    
 
     return nullptr;
 }
 
+vector<PIMPORT_IMPORTPE_FULLNAME>* CPeManger::PeImportGetFullBaseName(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+    /*
+    1.获取所有导入表的RVA
+    2.根据RVA转到文件偏移.获取模块名字.
+    */
+    vector<PIMAGE_IMPORT_DESCRIPTOR> *pImportList = PeImportGetFileImportList(FileName, hFile, DesireAccess);
+    vector<PIMPORT_IMPORTPE_FULLNAME>* pImportFullName = new vector<PIMPORT_IMPORTPE_FULLNAME>();
+    if (nullptr == pImportFullName)
+    {
+        return nullptr;
+    }
+    if (nullptr == pImportList)
+    {
+        return nullptr;
+    }
+    DWORD dwReadBytes = 0;
+    DWORD dwRet = 0;
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        vector<PIMAGE_IMPORT_DESCRIPTOR>::iterator it = pImportList->begin();
+        while (it != pImportList->end())
+        {
+            PIMPORT_IMPORTPE_FULLNAME pBuffer = new IMPORT_IMPORTPE_FULLNAME();
+            if (pBuffer == nullptr)
+            {
+                return nullptr;
+            }
+            SetFilePointer(hFile, RvAToFoA((*it)->Name,FileName,hFile,DesireAccess),NULL,FILE_BEGIN );
+            char szBuffer[0x100] = { 0 };
+            dwRet = ReadFile(hFile, szBuffer, 0x100, &dwReadBytes, nullptr);
 
+            if (dwRet == 0)
+            {
+                return nullptr;
+            }
+
+            pBuffer->ImportDllName = new TCHAR[strlen(szBuffer) + 1];
+#ifdef UNICODE
+            MultiByteToWideChar(
+                CP_ACP, 
+                0,
+                szBuffer, 
+                sizeof(szBuffer) / sizeof(szBuffer[0]), 
+                pBuffer->ImportDllName,
+                sizeof(TCHAR) * (strlen(szBuffer) + 1));
+#else
+            strcpy_s(pBuffer->ImportDllName, strlen(szBuffer) + 1, szBuffer);
+#endif
+           
+
+            pImportFullName->push_back(pBuffer);
+            it++;
+        }
+
+        return pImportFullName;
+    }
+    
+    return nullptr;
+}
+
+BOOL CPeManger::PeFreeImportFileList(vector<PIMAGE_IMPORT_DESCRIPTOR>* pList)
+{
+    if (pList == NULL)
+    {
+        return FALSE;
+    }
+    vector<PIMAGE_IMPORT_DESCRIPTOR>::iterator it = pList->begin();
+
+    while (it != pList->end())
+    {
+
+        if (*(it) != NULL)
+        {
+            delete *it;
+        }
+        it++;
+    }
+
+
+    
+    return TRUE;
+}
+
+vector<PIMAGE_EXPORT_DIRECTORY>* CPeManger::PeExPortGetFileExPort(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+
+   /*
+   typedef struct _IMAGE_EXPORT_DIRECTORY {
+    DWORD   Characteristics;
+    DWORD   TimeDateStamp;
+    WORD    MajorVersion;
+    WORD    MinorVersion;
+    DWORD   Name;                                                   Pe的名字,可能是DLL sys ...
+    DWORD   Base;                   导出函数的起始序号
+    DWORD   NumberOfFunctions;      所有导出函数的个数
+    DWORD   NumberOfNames;          以名字导出的函数的个数
+    DWORD   AddressOfFunctions;     // RVA from base of image       函数地址表的RVA
+    DWORD   AddressOfNames;         // RVA from base of image       函数名字表的RVA
+    DWORD   AddressOfNameOrdinals;  // RVA from base of image       导出序号表的RVA
+} IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;
+   
+   2 行 半
+   */
+
+    /*
+    1.获取数据目录
+    2.获取数据目录第1项,得出导出表所在文件位置
+    3.判断在那个节中.  rva - 节.va + file.fa = FOA位置
+    4.遍历导出表.存储在数组中.
+    */
+
+    vector<PIMAGE_EXPORT_DIRECTORY> *pExPortList = nullptr;
+
+    vector<PIMAGE_DATA_DIRECTORY> * pDirectory = nullptr;
+    LARGE_INTEGER laExPortDirRva = { 0 };
+    LARGE_INTEGER laExPortFoA = { 0 };
+    
+    pDirectory = PeDirGetDirectory(FileName,hFile, DesireAccess);
+
+    if (nullptr == pDirectory)
+    {
+        return nullptr;
+   }
+
+   
+    
+    vector<PIMAGE_DATA_DIRECTORY>::iterator it = pDirectory->begin();
+
+    //得到导出表RVA
+    int i = 0;
+    while (it != pDirectory->end())
+    {
+        
+        if (i == IMAGE_DIRECTORY_ENTRY_EXPORT)
+        {
+            laExPortDirRva.QuadPart = (*it)->VirtualAddress;
+        }
+        i++;
+        it++;
+    }
+
+    //得出导入表在文件中的偏移.
+    laExPortFoA.QuadPart = RvAToFoA(laExPortDirRva.QuadPart,FileName,hFile,DesireAccess);
+    DWORD dwRet = 0;
+    DWORD dwReadBytes = 0;
+    pExPortList = new vector<PIMAGE_EXPORT_DIRECTORY>();
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        //以文件读取
+
+        SetFilePointer(hFile, laExPortFoA.QuadPart, NULL, FILE_BEGIN);
+        PIMAGE_EXPORT_DIRECTORY pBuffer = new IMAGE_EXPORT_DIRECTORY();
+        dwRet = ReadFile(hFile, pBuffer, sizeof(IMAGE_EXPORT_DIRECTORY), &dwReadBytes, nullptr);
+        if (dwRet == 0)
+        {
+            return nullptr;
+        }
+        pExPortList->push_back(pBuffer);
+    }
+
+    return pExPortList;
+}
+
+//获取所有导出函数名字的RVA.
+vector<PEXPORT_TYPE_ADDRESSRVA>* CPeManger::PeExPortGetFullFunctionNameRva(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+    vector< PEXPORT_TYPE_ADDRESSRVA> *pFullFunctionNameAnAddressRvaList
+        = new vector<PEXPORT_TYPE_ADDRESSRVA>();
+
+
+    vector<PIMAGE_EXPORT_DIRECTORY>* pExPortList = PeExPortGetFileExPort(FileName, hFile, DesireAccess);//获取导出表
+    if (nullptr == pExPortList)
+    {
+        return nullptr;
+    }
+
+    //遍历导出表的 函数地址表 以及 导出表的名字表. 存放在结构中.
+
+    vector<PIMAGE_EXPORT_DIRECTORY>::iterator it = pExPortList->begin();
+
+    DWORD dwReadBytes;
+    DWORD dwRet = 0;
+    DWORD dwNumberOfNames = 0;
+    while (it != pExPortList->end())
+    {
+        SetFilePointer(hFile, RvAToFoA((*it)->AddressOfNames, FileName, hFile, DesireAccess), 0, FILE_BEGIN);//移动文件到函数地址表指向的FA位置.
+         //获取以名字导出的函数
+        for (dwNumberOfNames = (*it)->NumberOfNames; dwNumberOfNames != 0; dwNumberOfNames--)
+        {
+            PEXPORT_TYPE_ADDRESSRVA pBuffer = new EXPORT_TYPE_ADDRESSRVA();
+            //rva
+
+            //遍历函数地址表,得出所有函数地址表的RVA.存放在自定义结构中.
+            DWORD dwRva = 0;
+            //dwRva = RvAToFoA(0x94137,FileName,hFile,DesireAccess);
+            dwRet = ReadFile(hFile, &dwRva, sizeof(DWORD), &dwReadBytes, nullptr);
+            if (dwRet == 0)
+            {
+                return nullptr;
+            }
+            if (dwRva == 0)
+            {
+                return pFullFunctionNameAnAddressRvaList;
+            }
+            pBuffer->ExpTypeRva = dwRva;
+            pFullFunctionNameAnAddressRvaList->push_back(pBuffer);
+          
+
+        }
+
+        return pFullFunctionNameAnAddressRvaList;
+    }
+    return nullptr;
+}
+
+
+//获取导出表中所有导出函数的地址表的RVA
+vector< PEXPORT_TYPE_ADDRESSRVA> * CPeManger::PeExPortGetFullFunctionAddressRva(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+
+
+    vector< PEXPORT_TYPE_ADDRESSRVA> *pFullFunctionNameAnAddressRvaList
+        = new vector<PEXPORT_TYPE_ADDRESSRVA>();
+
+
+    vector<PIMAGE_EXPORT_DIRECTORY>* pExPortList = PeExPortGetFileExPort(FileName, hFile, DesireAccess);//获取导出表
+    if (nullptr == pExPortList)
+    {
+        return nullptr;
+    }
+
+    //遍历导出表的 函数地址表 以及 导出表的名字表. 存放在结构中.
+
+    vector<PIMAGE_EXPORT_DIRECTORY>::iterator it = pExPortList->begin();
+
+    DWORD dwReadBytes;
+    DWORD dwRet = 0;
+    DWORD dwNumberOfNames = 0;
+    while (it != pExPortList->end())
+    {
+        SetFilePointer(hFile, RvAToFoA((*it)->AddressOfFunctions, FileName, hFile, DesireAccess), 0, FILE_BEGIN);//移动文件到函数地址表指向的FA位置.
+         //获取以名字导出的函数
+        for (dwNumberOfNames = (*it)->NumberOfNames; dwNumberOfNames != 0; dwNumberOfNames--)
+        {
+            PEXPORT_TYPE_ADDRESSRVA pBuffer = new EXPORT_TYPE_ADDRESSRVA();
+            //rva
+
+            //遍历函数地址表,得出所有函数地址表的RVA.存放在自定义结构中.
+            DWORD dwRva = 0;
+            //dwRva = RvAToFoA(0x94137,FileName,hFile,DesireAccess);
+            dwRet = ReadFile(hFile, &dwRva, sizeof(DWORD), &dwReadBytes, nullptr);
+            if (dwRet == 0)
+            {
+                return nullptr;
+            }
+            if (dwRva == 0)
+            {
+                return pFullFunctionNameAnAddressRvaList;
+            }
+            pBuffer->ExpTypeRva = dwRva;
+            pFullFunctionNameAnAddressRvaList->push_back(pBuffer);
+
+
+        }
+
+        return pFullFunctionNameAnAddressRvaList;
+    }
+
+    return nullptr;
+}
+
+
+
+
+
+//获取导出表所有名字
+vector<PEXPORT_FULLNAME>* CPeManger::PeExportGetFullFunctionName(CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+    /*
+    1.获取导入表的所有 函数名字的RVA.
+    2.根据 RVATOFOA 取文件中查找对应的名字
+    */
+    vector<PEXPORT_TYPE_ADDRESSRVA> *pFunctionNameRva = nullptr;
+    vector<PEXPORT_FULLNAME>* pFullFunctionNameList = new vector<PEXPORT_FULLNAME>();
+    if (nullptr == pFullFunctionNameList)
+    {
+        return nullptr;
+    }
+    pFunctionNameRva = PeExPortGetFullFunctionNameRva(FileName, hFile, DesireAccess);
+
+    if (nullptr == pFunctionNameRva)
+    {
+        return nullptr;
+    }
+    DWORD dwReadBytes = 0;
+    DWORD dwRet = 0;
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        vector<PEXPORT_TYPE_ADDRESSRVA>::iterator it = pFunctionNameRva->begin();
+        while (it != pFunctionNameRva->end())
+        {
+            //移动文件指针到函数名字位置
+            PEXPORT_FULLNAME pBuffer = new EXPORT_FULLNAME();
+            if (nullptr == pBuffer)
+            {
+                return nullptr;
+            }
+            SetFilePointer(hFile, RvAToFoA((*it)->ExpTypeRva, FileName, hFile, DesireAccess), 0, FILE_BEGIN);
+
+            char szBuffer[0x200];
+            dwRet = ReadFile(hFile, szBuffer, sizeof(szBuffer)/sizeof(szBuffer[0]), &dwReadBytes, nullptr);
+            if (0 == dwRet)
+            {
+                break;
+            }
+
+            pBuffer->FunctionName = new TCHAR[strlen(szBuffer) + 1]();
+#ifdef UNICODE
+           
+
+            MultiByteToWideChar(CP_ACP,
+                0,
+                szBuffer,
+                sizeof(szBuffer) / sizeof(szBuffer[0]),
+                pBuffer->FunctionName, sizeof(TCHAR)*(strlen(szBuffer) + 1));
+           
+            //去掉名称粉碎.
+            pBuffer->UndName = new TCHAR[0x100]();
+
+            UnDecorateSymbolNameW(pBuffer->FunctionName, pBuffer->UndName, 0x100, 0);
+#else
+            pBuffer->UndName = new TCHAR[0x100]();
+            strcpy_s(pBuffer->FunctionName, sizeof(szBuffer) / sizeof(szBuffer[0]), szBuffer);
+            UnDecorateSymbolName(pBuffer->FunctionName, pBuffer->UndName, 0x100, 0);
+#endif
+           
+            pFullFunctionNameList->push_back(pBuffer);
+            it++;
+        }
+        return pFullFunctionNameList;
+    }
+    
+    return nullptr;
+}
+
+DWORD CPeManger::RvAToFoA(DWORD RvA,CBinString FileName,HANDLE hFile,DWORD DesireAccess)
+{
+    //根据RVA 在那个节中.返回其 RVA在文件中的偏移
+
+    vector<PIMAGE_SECTION_HEADER> *pSection = nullptr;
+
+    pSection = PeHederGetSectionHeader(FileName, hFile, DesireAccess);
+    if (nullptr == pSection)
+    {
+        return 0;
+    }
+
+    vector<PIMAGE_SECTION_HEADER>::iterator it = pSection->begin();
+    while (it != pSection->end())
+    {
+        if (RvA > (*it)->VirtualAddress && RvA < (*(it + 1))->VirtualAddress)
+        {
+            return RvA - (*it)->VirtualAddress + (*it)->PointerToRawData;
+        }
+
+        it++;
+    }
+    return 0;
+}
+DWORD CPeManger::FoAToRva(DWORD FoA, CBinString FileName, HANDLE hFile, DWORD DesireAccess)
+{
+    vector<PIMAGE_SECTION_HEADER> *pSection = nullptr;
+
+    pSection = PeHederGetSectionHeader(FileName, hFile, DesireAccess);
+    if (nullptr == pSection)
+    {
+        return 0;
+    }
+
+    vector<PIMAGE_SECTION_HEADER>::iterator it = pSection->begin();
+    while (it != pSection->end())
+    {
+        if (FoA > (*it)->PointerToRawData && FoA < (*(it + 1))->PointerToRawData)
+        {
+            return FoA -   (*it)->PointerToRawData + (*it)->VirtualAddress;
+        }
+
+        it++;
+    }
+    
+    return 0;
+}
+
+BOOL CPeManger::AddSection(CBinString FileName, HANDLE hFile)
+{
+
+   
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        if (FileName.empty())
+        {
+            return FALSE;
+        }
+
+        hFile = CreateFile(FileName.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+        if (hFile == INVALID_HANDLE_VALUE)
+        {
+            return NULL;
+        }
+        //映射到内存.
+    }
+
+   
+    return 0;
+}
 

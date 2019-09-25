@@ -41,9 +41,6 @@
     <ClCompile Include="KillXX_IElock.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ProcessManger\ProcessIterator\CProcessOpt.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KillXX_IElock.rc">

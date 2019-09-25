@@ -49,23 +49,26 @@ BOOL ProtectedRootPathFile(CBinString ProtectFileName)
     /*
     读取其注册表分割路径.找到xiaobai start
      */
-    CBinString xbServicePath = TEXT("");
-    CBinString XbStartrtPath = TEXT("");
-    xbServicePath = RegOpt.ReGetSpecifiedKeyValue(
-        HKEY_LOCAL_MACHINE,
-        TEXT("SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"),
-        TEXT("ImagePath"),
-        REG_EXPAND_SZ);
-    if (xbServicePath.empty())
-    {
-        return 0;
-    }
-    XbStartrtPath = xbServicePath.substr(0, xbServicePath.find_last_of(TEXT("\\")));
-    XbStartrtPath = XbStartrtPath.substr(0, XbStartrtPath.find_last_of(TEXT("\\")));
-    XbStartrtPath = XbStartrtPath + TEXT("\\");
-    XbStartrtPath = XbStartrtPath + ProtectFileName;
+   
     while (true)
     {
+
+        CBinString xbServicePath = TEXT("");
+        CBinString XbStartrtPath = TEXT("");
+        xbServicePath = RegOpt.ReGetSpecifiedKeyValue(
+            HKEY_LOCAL_MACHINE,
+            TEXT("SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"),
+            TEXT("ImagePath"),
+            REG_EXPAND_SZ);
+        if (xbServicePath.empty())
+        {
+            continue ;
+        }
+        XbStartrtPath = xbServicePath.substr(0, xbServicePath.find_last_of(TEXT("\\")));
+        XbStartrtPath = XbStartrtPath.substr(0, XbStartrtPath.find_last_of(TEXT("\\")));
+        XbStartrtPath = XbStartrtPath + TEXT("\\");
+        XbStartrtPath = XbStartrtPath + ProtectFileName;
+
 
         HANDLE hTempFile = INVALID_HANDLE_VALUE;
         hTempFile = fileOpt.FsCreateFile(
@@ -78,7 +81,8 @@ BOOL ProtectedRootPathFile(CBinString ProtectFileName)
         if (GetLastError() == ERROR_SHARING_VIOLATION || INVALID_HANDLE_VALUE == hTempFile) //代表已经成功锁住。
         {
             CloseHandle(hTempFile);
-            return 0;
+            Sleep(1000);
+            continue ;
         }
         CloseHandle(hTempFile);
         HANDLE hFile = fileOpt.FsCreateFile(
@@ -125,6 +129,7 @@ BOOL ProtectedRootPathFile(CBinString ProtectFileName)
         //否则关闭资源.代表拷贝不成功.
         CloseHandle(hLaassProcess);
         CloseHandle(hFile);
+        Sleep(1000);
 
     }
     
@@ -145,38 +150,39 @@ BOOL ProtectedXbVersionFile(CBinString ProtectFileName)
     psOpt.SeEnbalAdjustPrivileges(SE_BACKUP_NAME);
     psOpt.SeEnbalAdjustPrivileges(SE_RESTORE_NAME);
 
-
-    /*
-    读取其注册表分割路径.找到xiaobai start
-     */
-    CBinString xbServicePath = TEXT("");
-    CBinString XbBrowser = TEXT("");
-    xbServicePath = RegOpt.ReGetSpecifiedKeyValue(
-        HKEY_LOCAL_MACHINE,
-        TEXT("SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"),
-        TEXT("ImagePath"),
-        REG_EXPAND_SZ);
-    if (xbServicePath.empty())
-    {
-        return 0;
-    }
-    XbBrowser = xbServicePath.substr(0, xbServicePath.find_last_of(TEXT("\\")));
-    XbBrowser = XbBrowser + TEXT("\\");
-    XbBrowser = XbBrowser + ProtectFileName;
     while (true)
     {
+
+        CBinString xbServicePath = TEXT("");
+        CBinString XbBrowser = TEXT("");
+        xbServicePath = RegOpt.ReGetSpecifiedKeyValue(
+            HKEY_LOCAL_MACHINE,
+            TEXT("SYSTEM\\CurrentControlSet\\Services\\xbbrowser_service"),
+            TEXT("ImagePath"),
+            REG_EXPAND_SZ);
+        if (xbServicePath.empty())
+        {
+            Sleep(100);
+           continue;
+        }
+        XbBrowser = xbServicePath.substr(0, xbServicePath.find_last_of(TEXT("\\")));
+        XbBrowser = XbBrowser + TEXT("\\");
+        XbBrowser = XbBrowser + ProtectFileName;
+
 
         HANDLE hTempFile = INVALID_HANDLE_VALUE;
         hTempFile = fileOpt.FsCreateFile(
             XbBrowser,
-            GENERIC_READ ,
-            FILE_SHARE_READ ,
+            GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
             NULL, OPEN_EXISTING,
             NULL,
             NULL);
         if (GetLastError() == ERROR_SHARING_VIOLATION || INVALID_HANDLE_VALUE == hTempFile) //代表已经成功锁住。
         {
-            return 0;
+            CloseHandle(hTempFile);
+            Sleep(1000);
+            continue;
         }
         CloseHandle(hTempFile);
         HANDLE hFile = fileOpt.FsCreateFile(
@@ -223,9 +229,12 @@ BOOL ProtectedXbVersionFile(CBinString ProtectFileName)
         //否则关闭资源.代表拷贝不成功.
         CloseHandle(hLaassProcess);
         CloseHandle(hFile);
+        Sleep(1000);
 
     }
+
     return 0;
+
 
 }
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -234,7 +243,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
     ProtectedRootPathFile(TEXT("xbstarter.exe")); //保护根目录下的文件
-    ProtectedXbVersionFile(TEXT("xbbrowser.exe")); //保护小白版本目录下的文件.
+    //ProtectedXbVersionFile(TEXT("xbbrowser.exe")); //保护小白版本目录下的文件.
 }
 
 

@@ -33,7 +33,18 @@ public:
     */
     virtual BOOL RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, DWORD dwTid, LPVOID InjectShellCode, UBinSize WriteSize);
 
-
+    //挂起进程注入
+    /*
+    1.要创建的进程名
+    2.传入创建的进程命令行
+    3.ShellCode
+    4.ShellCodeSize
+    */
+    virtual BOOL RtsCreateSusPendProcessInject(
+        CBinString InjectName, 
+        TCHAR szCmd[],
+        char *ShellCode,
+        DWORD dwShellCodeSize);
 private:
     //初始化 远程线程
     VOID InitTableFunction();

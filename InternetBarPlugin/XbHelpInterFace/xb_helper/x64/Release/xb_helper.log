@@ -1,5 +1,0 @@
-﻿  dllmain.cpp
-dllmain.cpp(17): error C2039: “SetDetoursHook86”: 不是“CFilterByDll”的成员
-  f:\公司文档\公司代码\plugin\internetbarplugin\xbhelpinterface\xb_helper\CFilterByDll.h(23): note: 参见“CFilterByDll”的声明
-dllmain.cpp(28): error C2039: “SetUnDetoursHook86”: 不是“CFilterByDll”的成员
-  f:\公司文档\公司代码\plugin\internetbarplugin\xbhelpinterface\xb_helper\CFilterByDll.h(23): note: 参见“CFilterByDll”的声明

@@ -23,5 +23,10 @@ public:
         IN CBinString SubKey,
         IN CBinString  FindValueName,
         IN DWORD FindValueNameType);
+
+    vector<CBinString> RegGetSpecifiedKeyAllKey(
+        IN HKEY RootKey,
+        IN CBinString SubKey
+        ); //获取指定Key下面的所有Key
 };
 

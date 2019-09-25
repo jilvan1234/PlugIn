@@ -307,7 +307,7 @@ BOOLEAN EnumCallback()
 //删除回调的方式.
 BOOLEAN RemoveTheCmCallBackHook()
 {
-
+    return TRUE;
 }
 //此方法20分钟之内会蓝屏.等待继续研究.
 NTSTATUS PassCallBackInit()
@@ -321,8 +321,8 @@ NTSTATUS PassCallBackInit()
     kIrql = WPOFFx64();
     char szBuffer[15] = { 0 };
     memcpy(szBuffer, pCmCreateKey, 15);
-    UCHAR ShellCode[] = "\x48\x33\xc0\xc3";
-    memcpy((char *)pCmCreateKey, ShellCode, 4);
+    UCHAR ShellCode[] = "\xB8\x03\x05\x00\xC0\xc3\x90\x90\x90";  //可能是返回值问题.修改返回值为.请求绕过回调代码.0xC0000503L
+    memcpy((char *)pCmCreateKey, ShellCode, sizeof(ShellCode) / sizeof(ShellCode[0]));
     // *(char *)pCmCreateKey = 0xc3;
     WPONx64(kIrql);
     return STATUS_SUCCESS;
@@ -405,9 +405,9 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pRegPath)
    
     KIRQL kIrql;
     kIrql = WPOFFx64();
-    EnumCallback();
+    //EnumCallback();
+    PassCallBackInit();
     WPONx64(kIrql);
-    //PassCallBackInit();
     
 	return STATUS_SUCCESS;
 }

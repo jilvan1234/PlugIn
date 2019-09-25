@@ -17,14 +17,16 @@
 #define VERSION_WIN7                    124
 #define CHANGE_FILESECURRTY_WIN7        125
 #define VERSION_WIN7_SP1                126
-#define IDR_BIN7                        127
 #define VERSION_WIN10                   127
+#define Tv_x86_Dll                      128
+#define IDR_BIN7                        130
+#define TeamView_EXE                    130
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        128
+#define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           102

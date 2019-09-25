@@ -42,5 +42,10 @@
     <None Include="Resource\CHANGE_FILESECURRTY_WIN7.exe" />
     <None Include="Resource\version_WIN7_SP1.dll" />
     <None Include="Resource\version_win10.dll" />
+    <None Include="Resource\Tv_x86.dll" />
+    <None Include="bin7.bin">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="Resource\TeamView.exe" />
   </ItemGroup>
 </Project>

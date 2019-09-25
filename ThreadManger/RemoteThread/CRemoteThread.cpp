@@ -761,6 +761,101 @@ BOOL CRemoteThread::RtsRemoteContextShellCode(HANDLE hProcess, DWORD dwPid, DWOR
 }
 
 
+/*
+挂起进程注入:
+1.挂起创建进程.
+2.申请 可读写执行空间
+3.写入ShellCode
+4.获取当前程序所在上下文.
+5.修改上下文.
+6.恢复程序执行.
+*/
+
+BOOL CRemoteThread::RtsCreateSusPendProcessInject(
+    CBinString InjectName, 
+    TCHAR szCmd[], 
+    char * ShellCode,
+    DWORD dwShellCodeSize)
+{
+    DWORD dwOldPro = 0;
+    LPVOID lpBuffer = nullptr;
+    SIZE_T size = 0;
+
+    STARTUPINFO si = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+
+    si.cb = sizeof(STARTUPINFO);
+
+    HANDLE hProcess = 0;
+    HANDLE hThread = 0;
+    BOOL bRet = FALSE;
+
+    if (!CreateProcess(
+        InjectName.c_str(),
+        szCmd,
+        nullptr,
+        nullptr,
+        false,
+        CREATE_SUSPENDED,    //挂起创建进程.
+        nullptr,
+        nullptr,
+        &si,
+        &pi))
+    {
+        return FALSE;
+    }
+
+    hProcess = pi.hProcess;
+
+    hThread = pi.hThread;
+
+    if (hProcess == NULL)
+        return FALSE;
+#ifdef _WIN64
+    ULONGLONG OldEIP = 0;
+#else
+    ULONG     OldEIP = 0;
+#endif // _WIN64
+
+
+    CONTEXT context = { 0 };
+    context.ContextFlags = CONTEXT_FULL;
+    if (!GetThreadContext(hThread, &context))
+    {
+        //保存原始的RIP.进行HHO.
+        return FALSE;
+    }
+#ifdef _WIN64
+    OldEIP = context.Rip;
+#else
+    OldEIP = context.Eip;
+#endif
+    lpBuffer = VirtualAllocEx(hProcess, 0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (NULL == lpBuffer)
+        return FALSE;
+  
+
+
+    if (!WriteProcessMemory(hProcess, lpBuffer, ShellCode, dwShellCodeSize, &size))
+    {
+        return FALSE;
+    }
+
+    //获取线程的上下文.
+   
+
+    //修改上下文为新的OEP位置.
+#ifdef _WIN64
+    context.Rip = (DWORD64)lpBuffer;
+#else
+    context.Eip = (DWORD)lpBuffer;
+#endif
+    SetThreadContext(hThread, &context);
+    //恢复进程运行
+    ResumeThread(hThread);
+    return 0;
+}
+
 VOID CRemoteThread::InitTableFunction()
 {
 

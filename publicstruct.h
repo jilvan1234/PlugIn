@@ -625,3 +625,21 @@ typedef struct _SYSTEM_PROCESS_INFORMATION {
     LARGE_INTEGER Reserved7[6];
 } SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
 
+
+
+//线程信息结构体
+
+typedef  struct  _SYSTEM_THREAD_INFORMATION
+{
+    LARGE_INTEGER   KernelTime;
+    LARGE_INTEGER   UserTime;
+    LARGE_INTEGER   CreateTime;
+    ULONG            WaitTime;
+    PVOID            StartAddress;      //线程的起始地址.
+    CLIENT_ID       ClientId;
+    KPRIORITY       Priority;
+    KPRIORITY       BasePriority;
+    ULONG            ContextSwitchCount;
+    LONG             State; // 状态,是THREAD_STATE枚举类型中的一个值
+    LONG             WaitReason; //等待原因, KWAIT_REASON中的一个值
+} SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;

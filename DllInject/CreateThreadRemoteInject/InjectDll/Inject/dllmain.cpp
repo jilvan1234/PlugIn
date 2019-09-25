@@ -40,26 +40,29 @@ BOOL WINAPI MyCreateProcessW(
 {
     CBinString strCmd = lpCommandLine;
     CBinString strApplicateName = lpApplicationName;
-    if (strApplicateName.find(TEXT("calc")) == 0)
-    {
-        TEXT("strApplicateName 找到Calc 进行阻止 \r\n");
-        return 0;
-    }
-    if (strCmd.find(TEXT("calc")) == 0)
-    {
-        OutputDebugString(TEXT("strCmd 找到Calc 进行阻止 \r\n"));
-        return 0;
-    }
+    OutputDebugString(lpApplicationName);
+
+
+    //if (strApplicateName.find(TEXT("calc")) == 0)
+    //{
+    //    TEXT("strApplicateName 找到Calc 进行阻止 \r\n");
+    //    return 0;
+    //}
+    //if (strCmd.find(TEXT("calc")) == 0)
+    //{
+    //    OutputDebugString(TEXT("strCmd 找到Calc 进行阻止 \r\n"));
+    //    return 0;
+    //}
 
     return OldPfnCreateProcessW(
-        lpApplicationName, 
+        lpApplicationName,
         lpCommandLine,
-        lpProcessAttributes, 
+        lpProcessAttributes,
         lpThreadAttributes,
         bInheritHandles,
-        dwCreationFlags, 
-        lpEnvironment, 
-        lpCurrentDirectory, 
+        dwCreationFlags,
+        lpEnvironment,
+        lpCurrentDirectory,
         lpStartupInfo,
         lpProcessInformation);
 }
